@@ -1,4 +1,4 @@
-CREATE Table Personne (
+CREATE Table Personnes (
   id_personne integer primary key,
   nom varchar,
   prenom varchar,
@@ -6,33 +6,34 @@ CREATE Table Personne (
 );
 
 CREATE Table Client (
-  id_personne integer primary key REFERENCES Personne
+  id_personne integer primary key REFERENCES Personnes
 );
 
-CREATE Table Abonne (
-  id_personne integer primary key REFERENCES Personne,
+CREATE Table Abonnes (
+  id_personne integer primary key REFERENCES Personnes,
   adresse varchar,
   ville varchar,
   code_postal integer,
   pays integer,
   rib varchar,
-  id_abonnement integer
+  id_abonnement integer REFERENCES Abonnements
 );
 
-CREATE Table Personnel (
-  id_personne integer primary key REFERENCES Personne,
-  id_biliotheque integer,
-  poste varchar
+CREATE Table Personnels (
+  id_personne integer primary key REFERENCES Personnes,
+  id_biliotheque integer REFERENCES Bibliotheques,
+  poste varchar,
+  iban varchar
 );
 
-CREATE Table Intervenant (
-  id_personne integer primary key REFERENCES Personne
+CREATE Table Intervernants (
+  id_personne integer primary key REFERENCES Personnes
 );
 
-CREATE Table Evenement (
+CREATE Table Evenements (
   id_evenement integer primary key,
-  id_personne integer,
-  id_bibliotheque integer,
+  id_personne integer REFERENCES Personnes,
+  id_bibliotheque integer REFERENCES Bibliotheques,
   theme varchar,
   nom varchar,
   date_evenement date,
@@ -40,7 +41,7 @@ CREATE Table Evenement (
   nb_abonne integer
 );
 
-CREATE Table Bibliotheque (
+CREATE Table Bibliotheques (
   id_bibliotheque integer primary key,
   nom_bibliotheque varchar,
   adresse varchar,
@@ -60,37 +61,30 @@ CREATE Table Ouvrages (
   prix integer
 );
 
-CREATE Table Exemplaire(
+CREATE Table Exemplaires(
   id_exemplaire integer primary key,
-  id_ouvrage integer,
-  id_bibliotheque integer
-);
-
-CREATE Table Employes(
-  id_personne integer primary key,
-  id_bibliotheque integer,
-  poste varchar,
-  iban varchar
+  id_ouvrage integer REFERENCES Ouvrages,
+  id_bibliotheque integer REFERENCES Bibliotheques
 );
 
 CREATE Table Participants(
   id_participation integer primary key,
-  id_evenement integer,
-  id_personne integer
+  id_evenement integer REFERENCES Evenements,
+  id_personne integer REFERENCES Personnes
 );
 
-CREATE Table Reservation(
+CREATE Table Reservations(
   id_reservation integer primary key,
-  id_exemplaire integer,
-  id_abonne integer,
+  id_exemplaire integer REFERENCES Exemplaires,
+  id_abonne integer REFERENCES Abonnes,
   date_reservation date,
   date_expiration date
 );
 
-CREATE Table Pret(
+CREATE Table Prets(
   id_pret integer primary key,
-  id_exemplaire integer,
-  id_abonne integer,
+  id_exemplaire integer REFERENCES Exemplaires,
+  id_abonne integer REFERENCES Abonnes,
   date_debut date,
   date_fin date,
   compteur_renouvellement integer,
@@ -99,88 +93,50 @@ CREATE Table Pret(
 
 CREATE Table Interventions(
   id_intervention integer primary key,
-  id_personne integer
+  id_personne integer REFERENCES Intervernants
 );
 
-CREATE Table Transfert(
+CREATE Table Transferts(
   id_transfert integer primary key,
-  id_exemplaire integer,
-  id_bibliotheque_depart integer,
-  id_bibliotheque_arrivee integer,
+  id_exemplaire integer REFERENCES Exemplaires,
+  id_bibliotheque_depart integer REFERENCES Bibliotheques,
+  id_bibliotheque_arrivee integer REFERENCES Bibliotheques,
   date_demande date,
   date_arrivee date
 );
 
-CREATE Table Achat(
+CREATE Table Achats(
   id_achat integer primary key,
-  id_exemplaire integer,
+  id_exemplaire integer REFERENCES Exemplaires,
   prix integer,
   date_achat date,
   fournisseur varchar
 );
 
-CREATE Table Penalite(
+CREATE Table Penalites(
   id_penalite integer primary key,
   nature_infraction varchar,
   id_pret integer,
-  id_personne integer REFERENCES Personne
+  id_personne integer REFERENCES Personnes
 );
 
 CREATE Table Amendes(
-  id_penalite integer primary key,
+  id_penalite integer primary key REFERENCES Penalites,
   montant integer
 );
 
-CREATE Table Banissement_Temporaire(
-  id_penalite integer primary key,
+CREATE Table Banissements_Temporaires(
+  id_penalite integer primary key REFERENCES Penalites,
   date_debut date,
   date_fin date
 );
 
-CREATE Table Banissement(
-  id_penalite integer primary key,
+CREATE Table Banissements(
+  id_penalite integer primary key REFERENCES Penalites,
   date_debut date
 );
 
-CREATE Table Abonnement(
+CREATE Table Abonnements(
   id_abonnement integer primary key,
   prix integer
 );
-
-/*
-Ref: Personne.id_personne > Client.id_personne,
-Ref: Personne.id_personne > Abonne.id_personne,
-Ref: Personne.id_personne > Personnel.id_personne,
-Ref: Personne.id_personne > Intervenant.id_personne,
-Ref: Personne.id_personne > Evenement.id_personne,
-Ref: Personne.id_personne > Participants.id_personne,
-Ref: Personne.id_personne > Penalite.id_personne,
-
-Ref: Bibliotheque.id_bibliotheque > Evenement.id_bibliotheque,
-Ref: Bibliotheque.id_bibliotheque > Exemplaire.id_bibliotheque,
-Ref: Bibliotheque.id_bibliotheque > Employes.id_bibliotheque,
-Ref: Bibliotheque.id_bibliotheque > Transfert.id_bibliotheque_depart,
-Ref: Bibliotheque.id_bibliotheque > Transfert.id_bibliotheque_arrivee,
-
-Ref: Ouvrages.id_ouvrage > Exemplaire.id_ouvrage,
-
-Ref: Exemplaire.id_exemplaire > Transfert.id_exemplaire,
-Ref: Exemplaire.id_exemplaire > Achat.id_exemplaire,
-Ref: Exemplaire.id_exemplaire > Pret.id_exemplaire,
-Ref: Exemplaire.id_exemplaire > Reservation.id_exemplaire,
-
-Ref: Evenement.id_evenement > Participants.id_evenement,
-
-Ref: Intervenant.id_personne > Interventions.id_personne,
-
-Ref: Personnel.id_personne > Employes.id_personne,
-
-Ref: Abonne.id_personne > Pret.id_abonne,
-Ref: Abonne.id_personne > Reservation.id_abonne,
-
-Ref: Penalite.id_penalite > Amendes.id_penalite,
-Ref: Penalite.id_penalite > Banissement_Temporaire.id_penalite,
-Ref: Penalite.id_penalite > Banissement.id_penalite,
-
-Ref: Abonnement.id_abonnement > Abonne.id_abonnement,
-*/
