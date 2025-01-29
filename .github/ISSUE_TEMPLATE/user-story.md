@@ -1,5 +1,5 @@
 ---
-name: "<Titre>"
+name: User Story
 about: Template pour les USs
 title: ''
 labels: ''
