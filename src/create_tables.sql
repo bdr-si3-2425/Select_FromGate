@@ -1,20 +1,20 @@
-CREATE Table Personnes (
+CREATE TABLE IF NOT EXISTS Personnes (
   id_personne integer primary key,
   nom varchar,
   prenom varchar,
   email varchar
 );
 
-CREATE Table Client (
+CREATE TABLE IF NOT EXISTS Client (
   id_personne integer primary key REFERENCES Personnes
 );
 
-CREATE Table Abonnements(
+CREATE TABLE IF NOT EXISTS Abonnements(
   id_abonnement integer primary key,
   prix integer
 );
 
-CREATE Table Abonnes (
+CREATE TABLE IF NOT EXISTS Abonnes (
   id_personne integer primary key REFERENCES Personnes,
   adresse varchar,
   ville varchar,
@@ -24,7 +24,7 @@ CREATE Table Abonnes (
   id_abonnement integer REFERENCES Abonnements
 );
 
-CREATE Table Bibliotheques (
+CREATE TABLE IF NOT EXISTS Bibliotheques (
   id_bibliotheque integer primary key,
   nom_bibliotheque varchar,
   adresse varchar,
@@ -32,18 +32,18 @@ CREATE Table Bibliotheques (
   pays varchar
 );
 
-CREATE Table Personnels (
+CREATE TABLE IF NOT EXISTS Personnels (
   id_personne integer primary key REFERENCES Personnes,
   id_biliotheque integer REFERENCES Bibliotheques,
   poste varchar,
   iban varchar
 );
 
-CREATE Table Intervernants (
+CREATE TABLE IF NOT EXISTS Intervernants (
   id_personne integer primary key REFERENCES Personnes
 );
 
-CREATE Table Evenements (
+CREATE TABLE IF NOT EXISTS Evenements (
   id_evenement integer primary key,
   id_personne integer REFERENCES Personnes,
   id_bibliotheque integer REFERENCES Bibliotheques,
@@ -54,7 +54,7 @@ CREATE Table Evenements (
   nb_abonne integer
 );
 
-CREATE Table Ouvrages (
+CREATE TABLE IF NOT EXISTS Ouvrages (
   id_ouvrage integer primary key,
   titre varchar,
   autheur varchar,
@@ -66,19 +66,19 @@ CREATE Table Ouvrages (
   prix integer
 );
 
-CREATE Table Exemplaires(
+CREATE TABLE IF NOT EXISTS Exemplaires(
   id_exemplaire integer primary key,
   id_ouvrage integer REFERENCES Ouvrages,
   id_bibliotheque integer REFERENCES Bibliotheques
 );
 
-CREATE Table Participants(
+CREATE TABLE IF NOT EXISTS Participants(
   id_participation integer primary key,
   id_evenement integer REFERENCES Evenements,
   id_personne integer REFERENCES Personnes
 );
 
-CREATE Table Reservations(
+CREATE TABLE IF NOT EXISTS Reservations(
   id_reservation integer primary key,
   id_exemplaire integer REFERENCES Exemplaires,
   id_abonne integer REFERENCES Abonnes,
@@ -86,7 +86,7 @@ CREATE Table Reservations(
   date_expiration date
 );
 
-CREATE Table Prets(
+CREATE TABLE IF NOT EXISTS Prets(
   id_pret integer primary key,
   id_exemplaire integer REFERENCES Exemplaires,
   id_abonne integer REFERENCES Abonnes,
@@ -96,12 +96,12 @@ CREATE Table Prets(
   retard integer
 );
 
-CREATE Table Interventions(
+CREATE TABLE IF NOT EXISTS Interventions(
   id_intervention integer primary key,
   id_personne integer REFERENCES Intervernants
 );
 
-CREATE Table Transferts(
+CREATE TABLE IF NOT EXISTS Transferts(
   id_transfert integer primary key,
   id_exemplaire integer REFERENCES Exemplaires,
   id_bibliotheque_depart integer REFERENCES Bibliotheques,
@@ -110,7 +110,7 @@ CREATE Table Transferts(
   date_arrivee date
 );
 
-CREATE Table Achats(
+CREATE TABLE IF NOT EXISTS Achats(
   id_achat integer primary key,
   id_exemplaire integer REFERENCES Exemplaires,
   prix integer,
@@ -118,25 +118,25 @@ CREATE Table Achats(
   fournisseur varchar
 );
 
-CREATE Table Penalites(
+CREATE TABLE IF NOT EXISTS Penalites(
   id_penalite integer primary key,
   nature_infraction varchar,
   id_pret integer,
   id_personne integer REFERENCES Personnes
 );
 
-CREATE Table Amendes(
+CREATE TABLE IF NOT EXISTS Amendes(
   id_penalite integer primary key REFERENCES Penalites,
   montant integer
 );
 
-CREATE Table Banissements_Temporaires(
+CREATE TABLE IF NOT EXISTS Banissements_Temporaires(
   id_penalite integer primary key REFERENCES Penalites,
   date_debut date,
   date_fin date
 );
 
-CREATE Table Banissements(
+CREATE TABLE IF NOT EXISTS Banissements(
   id_penalite integer primary key REFERENCES Penalites,
   date_debut date
 );
