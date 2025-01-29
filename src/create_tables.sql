@@ -9,6 +9,11 @@ CREATE Table Client (
   id_personne integer primary key REFERENCES Personnes
 );
 
+CREATE Table Abonnements(
+  id_abonnement integer primary key,
+  prix integer
+);
+
 CREATE Table Abonnes (
   id_personne integer primary key REFERENCES Personnes,
   adresse varchar,
@@ -17,6 +22,14 @@ CREATE Table Abonnes (
   pays integer,
   rib varchar,
   id_abonnement integer REFERENCES Abonnements
+);
+
+CREATE Table Bibliotheques (
+  id_bibliotheque integer primary key,
+  nom_bibliotheque varchar,
+  adresse varchar,
+  ville varchar,
+  pays varchar
 );
 
 CREATE Table Personnels (
@@ -39,14 +52,6 @@ CREATE Table Evenements (
   date_evenement date,
   nb_max_personne integer,
   nb_abonne integer
-);
-
-CREATE Table Bibliotheques (
-  id_bibliotheque integer primary key,
-  nom_bibliotheque varchar,
-  adresse varchar,
-  ville varchar,
-  pays varchar
 );
 
 CREATE Table Ouvrages (
@@ -136,7 +141,3 @@ CREATE Table Banissements(
   date_debut date
 );
 
-CREATE Table Abonnements(
-  id_abonnement integer primary key,
-  prix integer
-);
