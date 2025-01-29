@@ -5,12 +5,13 @@ CREATE TABLE IF NOT EXISTS Personnes (
   email varchar not null
 );
 
-CREATE TABLE IF NOT EXISTS Client (
+CREATE TABLE IF NOT EXISTS Clients (
   id_personne integer primary key REFERENCES Personnes
 );
 
 CREATE TABLE IF NOT EXISTS Abonnements(
   id_abonnement integer generated always as identity primary key,
+  nombre_livres integer not null,
   prix integer not null
 );
 
@@ -19,7 +20,7 @@ CREATE TABLE IF NOT EXISTS Abonnes (
   adresse varchar not null,
   ville varchar not null,
   code_postal integer not null,
-  pays integer not null,
+  pays varchar not null,
   rib varchar not null,
   id_abonnement integer not null REFERENCES Abonnements
 );
