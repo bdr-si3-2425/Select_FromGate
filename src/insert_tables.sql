@@ -105,3 +105,19 @@ VALUES
 (39, 3, 'Bibliothécaire', 'FR7690123456789012345678901'),
 (44, 3, 'Agent de sécurité', 'FR7745678901234567890123456'),
 (45, 3, 'Technicien informatique', 'FR7756789012345678901234567');
+
+INSERT INTO Ouvrages (titre, autheur, annee, nb_pages, edition, id_collection, resume, prix) 
+VALUES 
+('Le Seigneur des Anneaux', 'J.R.R. Tolkien', 1954, 1200, 'Allen & Unwin', 1, 'Un groupe d amis part en quête pour détruire un anneau maléfique et sauver leur monde.', 25),
+('1984', 'George Orwell', 1949, 328, 'Secker & Warburg', 2, 'Dans un futur totalitaire, un homme lutte contre le contrôle absolu de la pensée.', 15),
+('Harry Potter à l École des Sorciers', 'J.K. Rowling', 1997, 309, 'Bloomsbury', 3, 'Un jeune orphelin découvre qu il est un sorcier et entre dans une école magique.', 20),
+('La Peste', 'Albert Camus', 1947, 324, 'Gallimard', 4, 'Une épidémie de peste frappe une ville et les habitants luttent pour survivre.', 18);
+
+INSERT INTO Exemplaires (id_ouvrage, id_bibliotheque)
+VALUES
+  (1, 1), -- Exemplaire 1 du livre "Le seigneur des anneaux" dans la bibliothèque 1
+  (1, 1), -- Exemplaire 2 du même livre
+  (2, 1), -- Exemplaire 3 du livre "1984" dans la bibliothèque 1
+  (3, 1), -- Exemplaire 4 du livre "Harry Potter à l'école des sorciers" dans la bibliothèque 1
+  (4, 1), -- Exemplaire 5 du livre "La peste" dans la bibliothèque 1
+  (4, 1); -- Exemplaire 6 du même livre
