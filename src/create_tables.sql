@@ -91,10 +91,10 @@ CREATE TABLE IF NOT EXISTS Prets(
   id_pret integer generated always as identity primary key,
   id_exemplaire integer not null REFERENCES Exemplaires,
   id_abonne integer not null REFERENCES Abonnes,
-  date_debut date not null,
-  date_fin date not null,
-  compteur_renouvellement integer not null,
-  retard integer not null
+  date_debut date,
+  date_fin date,
+  compteur_renouvellement integer,
+  retard integer
 );
 
 CREATE TABLE IF NOT EXISTS Interventions(
