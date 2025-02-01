@@ -82,6 +82,18 @@ END IF;
         RAISE EXCEPTION 'L''abonné(e) est banni définitivement';
 END IF;
 
+	-- Vérifie que l'abonné(e) n'ait pas d'amende impayée :
+	IF EXISTS (
+	    SELECT 1
+	    FROM Penalites p
+	    JOIN Amendes am ON am.id_penalite = p.id_penalite
+	    WHERE p.id_personne = NEW.id_abonne
+	      AND am.id_penalite NOT IN (SELECT id_penalite FROM Amendes_Reglements)
+	) THEN
+	    RAISE EXCEPTION 'L''abonné(e) n''a pas encore réglé ses amendes';
+END IF;
+
+
 RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;

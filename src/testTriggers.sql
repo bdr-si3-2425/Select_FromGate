@@ -29,7 +29,7 @@ INSERT INTO Prets (id_exemplaire, id_abonne) VALUES (5, 11);
 */
 
 
--- Test 5 : Abonné temporairement banni
+-- Test 5 : Abonné(e) temporairement banni(e)
 
 /*
 INSERT INTO Penalites (nature_infraction, id_pret, id_personne) VALUES ('Retard', 1, 12);
@@ -38,14 +38,23 @@ INSERT INTO Prets (id_exemplaire, id_abonne) VALUES (6, 12);
 */
 
 
--- Test 6 : Abonné définitivement banni
+-- Test 6 : Abonné(e) définitivement banni(e)
 /*
 INSERT INTO Penalites (nature_infraction, id_pret, id_personne) VALUES ('Fraude', 1, 13);
 INSERT INTO Banissements (id_penalite, date_debut) VALUES (1, CURRENT_DATE - INTERVAL '1 day');
 INSERT INTO Prets (id_exemplaire, id_abonne) VALUES (1, 13);
 */
 
--- Test 7 : Insertion d'une réservation avec une durée incorrecte (Modifie pour la bonne valeur +14j)
+
+-- Test 7: Abonné(e) n'ayant pas encore rêglé son amende
+/*
+INSERT INTO Penalites (nature_infraction, id_pret, id_personne) VALUES ('Amende', 1, 13);
+INSERT INTO Amendes (id_penalite, montant) VALUES (1, 25);
+INSERT INTO Prets (id_exemplaire, id_abonne) VALUES (1, 13);
+*/
+
+
+-- Test 8 : Insertion d'un prêt avec une durée incorrecte (Modifie pour la bonne valeur +14j)
 /*
 INSERT INTO Prets (id_exemplaire, id_abonne, date_fin)
 VALUES (2, 12, CURRENT_DATE + INTERVAL '10 days');
@@ -53,7 +62,7 @@ SELECT * FROM Prets;
 */
 
 
---Test 8 : Insertion d'une réservation qui chevauche une réservation existante
+--Test 9 : Insertion d'un prêt qui chevauche une réservation existante
 /*
 INSERT INTO Reservations (id_exemplaire, id_abonne, date_reservation, date_expiration)
 VALUES (1, 12, CURRENT_DATE + INTERVAL '8 days', CURRENT_DATE + INTERVAL '30 days');
@@ -61,3 +70,4 @@ VALUES (1, 12, CURRENT_DATE + INTERVAL '8 days', CURRENT_DATE + INTERVAL '30 day
 INSERT INTO Prets (id_exemplaire, id_abonne, date_fin)
 VALUES (1, 12, CURRENT_DATE + INTERVAL '14 days');
 */
+
