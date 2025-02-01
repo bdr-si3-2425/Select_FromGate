@@ -1,20 +1,25 @@
-DROP TABLE IF EXISTS Banissements;
-DROP TABLE IF EXISTS Banissements_Temporaires;
-DROP TABLE IF EXISTS Amendes;
-DROP TABLE IF EXISTS Penalites;
-DROP TABLE IF EXISTS Achats;
-DROP TABLE IF EXISTS Transferts;
-DROP TABLE IF EXISTS Interventions;
-DROP TABLE IF EXISTS Prets;
-DROP TABLE IF EXISTS Reservations;
-DROP TABLE IF EXISTS Participants;
-DROP TABLE IF EXISTS Exemplaires;
-DROP TABLE IF EXISTS Ouvrages;
-DROP TABLE IF EXISTS Evenements;
-DROP TABLE IF EXISTS Intervernants;
-DROP TABLE IF EXISTS Personnels;
-DROP TABLE IF EXISTS Bibliotheques;
-DROP TABLE IF EXISTS Abonnes;
-DROP TABLE IF EXISTS Abonnements;
-DROP TABLE IF EXISTS Clients;
-DROP TABLE IF EXISTS Personnes;
+DO $$ 
+DECLARE
+    r RECORD;
+BEGIN
+    -- Pour chaque trigger dans la base de données
+    FOR r IN (SELECT tgname, tgrelid::regclass::text AS table_name
+              FROM pg_trigger
+              WHERE NOT tgisinternal) 
+    LOOP
+        -- Génère et exécute le DROP TRIGGER pour chaque trigger
+        EXECUTE 'DROP TRIGGER IF EXISTS ' || r.tgname || ' ON ' || r.table_name;
+    END LOOP;
+END $$;
+
+DO $$ 
+DECLARE
+    r RECORD;
+BEGIN
+    -- Pour chaque table dans la base
+    FOR r IN (SELECT tablename FROM pg_tables WHERE schemaname = 'public') 
+    LOOP
+        -- Génère et exécute un DROP pour chaque table
+        EXECUTE 'DROP TABLE IF EXISTS public.' || r.tablename || ' CASCADE';
+    END LOOP;
+END $$;
