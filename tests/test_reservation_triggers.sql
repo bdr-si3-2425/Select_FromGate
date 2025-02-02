@@ -1,6 +1,6 @@
 -- Test 1 : Reservation de la part d'une personne non-abbonnée
 /*
-INSERT INTO Reservations (id_exemplaire, id_personne) VALUES (3, 1);
+INSERT INTO Reservations (id_exemplaire, id_abonne) VALUES (3, 1);
 */
 
 

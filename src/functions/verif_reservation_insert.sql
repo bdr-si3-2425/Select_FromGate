@@ -26,7 +26,7 @@ BEGIN
         SELECT 1
         FROM Penalites AS p
         JOIN Banissements_Temporaires AS bt ON bt.id_penalite = p.id_penalite
-        WHERE p.id_personne = NEW.id_
+        WHERE p.id_personne = NEW.id_abonne
         AND bt.date_debut <= CURRENT_DATE
         AND CURRENT_DATE <= bt.date_fin
     ) THEN
@@ -39,8 +39,7 @@ BEGIN
         FROM Penalites AS p
         JOIN Amendes AS am ON am.id_penalite = p.id_penalite
         WHERE p.id_personne = NEW.id_abonne
-        AND bt.date_debut <= CURRENT_DATE
-        AND bt.date_fin >= CURRENT_DATE
+        AND am.id_penalite NOT IN(SELECT id_penalite FROM Amendes_Reglements)
     ) THEN
         RAISE EXCEPTION "L'abonné a des amendes impayées";
     END IF;

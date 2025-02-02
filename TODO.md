@@ -2,227 +2,158 @@ Executer les tests une foids que l'on aura trouvé la cause du bug
 
 Pour tester :
 ```sql
+--------------------------------------------------------------------------------
+-- Création des tables :
+--------------------------------------------------------------------------------
+
 CREATE TABLE IF NOT EXISTS Personnes (
-    id_personne integer generated always as identity primary key,
-    nom varchar not null,
-    prenom varchar not null,
-    email varchar not null
+  id_personne SERIAL PRIMARY KEY,
+  nom VARCHAR(255) NOT NULL,
+  prenom VARCHAR(255) NOT NULL,
+  email VARCHAR(255) NOT NULL UNIQUE
 );
 
 CREATE TABLE IF NOT EXISTS Clients (
-    id_personne integer primary key REFERENCES Personnes
+  id_personne INTEGER PRIMARY KEY REFERENCES Personnes(id_personne)
 );
 
-CREATE TABLE IF NOT EXISTS Abonnements(
-    id_abonnement integer generated always as identity primary key,
-    nombre_livres integer not null,
-    prix integer not null
+CREATE TABLE IF NOT EXISTS Abonnements (
+  id_abonnement SERIAL PRIMARY KEY,
+  nombre_livres INTEGER NOT NULL,
+  prix INTEGER NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS Abonnes (
-    id_personne integer primary key REFERENCES Personnes,
-    adresse varchar not null,
-    ville varchar not null,
-    code_postal integer not null,
-    pays varchar not null,
-    rib varchar not null,
-    id_abonnement integer not null REFERENCES Abonnements
+  id_personne INTEGER PRIMARY KEY REFERENCES Personnes(id_personne),
+  adresse VARCHAR(255) NOT NULL,
+  ville VARCHAR(255) NOT NULL,
+  code_postal VARCHAR(10) NOT NULL,
+  pays VARCHAR(255) NOT NULL,
+  rib VARCHAR(34) NOT NULL,
+  id_abonnement INTEGER NOT NULL REFERENCES Abonnements(id_abonnement)
 );
 
 CREATE TABLE IF NOT EXISTS Bibliotheques (
-    id_bibliotheque integer generated always as identity primary key,
-    nom_bibliotheque varchar not null,
-    adresse varchar not null,
-    ville varchar not null,
-    pays varchar not null
+  id_bibliotheque SERIAL PRIMARY KEY,
+  nom_bibliotheque VARCHAR(255) NOT NULL,
+  adresse VARCHAR(255) NOT NULL,
+  ville VARCHAR(255) NOT NULL,
+  pays VARCHAR(255) NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS Personnels (
-    id_personne integer primary key REFERENCES Personnes,
-    id_biliotheque integer not null REFERENCES Bibliotheques,
-    poste varchar not null,
-    iban varchar not null
+  id_personne INTEGER PRIMARY KEY REFERENCES Personnes(id_personne),
+  id_bibliotheque INTEGER NOT NULL REFERENCES Bibliotheques(id_bibliotheque),
+  poste VARCHAR(255) NOT NULL,
+  iban VARCHAR(34) NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS Intervernants (
-    id_personne integer primary key REFERENCES Personnes
+CREATE TABLE IF NOT EXISTS Intervenants (
+  id_personne INTEGER PRIMARY KEY REFERENCES Personnes(id_personne)
 );
 
 CREATE TABLE IF NOT EXISTS Evenements (
-    id_evenement integer generated always as identity primary key,
-    id_personne integer not null REFERENCES Personnes,
-    id_bibliotheque integer not null REFERENCES Bibliotheques,
-    theme varchar not null,
-    nom varchar not null,
-    date_evenement date not null,
-    nb_max_personne integer not null,
-    nb_abonne integer not null
+  id_evenement SERIAL PRIMARY KEY,
+  id_personne INTEGER NOT NULL REFERENCES Personnes(id_personne),
+  id_bibliotheque INTEGER NOT NULL REFERENCES Bibliotheques(id_bibliotheque),
+  theme VARCHAR(255) NOT NULL,
+  nom VARCHAR(255) NOT NULL,
+  date_evenement DATE NOT NULL,
+  nb_max_personne INTEGER NOT NULL CHECK (nb_max_personne > 0),
+  nb_abonne INTEGER NOT NULL CHECK (nb_abonne >= 0)
 );
 
 CREATE TABLE IF NOT EXISTS Ouvrages (
-    id_ouvrage integer generated always as identity primary key,
-    titre varchar not null,
-    autheur varchar not null,
-    annee integer not null,
-    nb_pages integer not null,
-    edition varchar not null,
-    id_collection integer not null,
-    resume varchar not null,
-    prix integer not null
+  id_ouvrage SERIAL PRIMARY KEY,
+  titre VARCHAR(255) NOT NULL,
+  auteur VARCHAR(255) NOT NULL,
+  annee INTEGER NOT NULL CHECK (annee > 0),
+  nb_pages INTEGER NOT NULL CHECK (nb_pages > 0),
+  edition VARCHAR(255) NOT NULL,
+  id_collection INTEGER NOT NULL,
+  resume TEXT NOT NULL,
+  prix INTEGER NOT NULL CHECK (prix >= 0)
 );
 
-CREATE TABLE IF NOT EXISTS Exemplaires(
-    id_exemplaire integer generated always as identity primary key,
-    id_ouvrage integer not null REFERENCES Ouvrages,
-    id_bibliotheque integer not null REFERENCES Bibliotheques
+CREATE TABLE IF NOT EXISTS Exemplaires (
+  id_exemplaire SERIAL PRIMARY KEY,
+  id_ouvrage INTEGER NOT NULL REFERENCES Ouvrages(id_ouvrage),
+  id_bibliotheque INTEGER NOT NULL REFERENCES Bibliotheques(id_bibliotheque)
 );
 
-CREATE TABLE IF NOT EXISTS Participants(
-    id_participation integer generated always as identity primary key,
-    id_evenement integer not null REFERENCES Evenements,
-    id_personne integer not null REFERENCES Personnes
+CREATE TABLE IF NOT EXISTS Participants (
+  id_participation SERIAL PRIMARY KEY,
+  id_evenement INTEGER NOT NULL REFERENCES Evenements(id_evenement),
+  id_personne INTEGER NOT NULL REFERENCES Personnes(id_personne)
 );
 
-CREATE TABLE IF NOT EXISTS Reservations(
-    id_reservation integer generated always as identity primary key,
-    id_exemplaire integer not null REFERENCES Exemplaires,
-    id_abonne integer not null REFERENCES Abonnes,
-    date_reservation date not null,
-    date_expiration date not null
+CREATE TABLE IF NOT EXISTS Reservations (
+  id_reservation SERIAL PRIMARY KEY,
+  id_exemplaire INTEGER NOT NULL REFERENCES Exemplaires(id_exemplaire),
+  id_abonne INTEGER NOT NULL REFERENCES Abonnes(id_personne),
+  date_reservation DATE NOT NULL,
+  date_expiration DATE NOT NULL CHECK (date_expiration > date_reservation)
 );
 
-CREATE TABLE IF NOT EXISTS Prets(
-    id_pret integer generated always as identity primary key,
-    id_exemplaire integer not null REFERENCES Exemplaires,
-    id_abonne integer not null REFERENCES Abonnes,
-    date_debut date,
-    date_fin date,
-    compteur_renouvellement integer,
-    retard integer
+CREATE TABLE IF NOT EXISTS Prets (
+  id_pret SERIAL PRIMARY KEY,
+  id_exemplaire INTEGER NOT NULL REFERENCES Exemplaires(id_exemplaire),
+  id_abonne INTEGER NOT NULL REFERENCES Abonnes(id_personne),
+  date_debut DATE NOT NULL,
+  date_fin DATE NOT NULL CHECK (date_fin > date_debut),
+  compteur_renouvellement INTEGER NOT NULL DEFAULT 0 CHECK (compteur_renouvellement >= 0),
+  retard INTEGER NOT NULL DEFAULT 0 CHECK (retard >= 0)
 );
 
-CREATE TABLE IF NOT EXISTS Interventions(
-    id_intervention integer generated always as identity primary key,
-    id_personne integer not null REFERENCES Intervernants
+CREATE TABLE IF NOT EXISTS Interventions (
+  id_intervention SERIAL PRIMARY KEY,
+  id_personne INTEGER NOT NULL REFERENCES Intervenants(id_personne)
 );
 
-CREATE TABLE IF NOT EXISTS Transferts(
-    id_transfert integer generated always as identity primary key,
-    id_exemplaire integer not null REFERENCES Exemplaires,
-    id_bibliotheque_depart integer not null REFERENCES Bibliotheques,
-    id_bibliotheque_arrivee integer not null REFERENCES Bibliotheques,
-    date_demande date not null,
-    date_arrivee date not null
+CREATE TABLE IF NOT EXISTS Transferts (
+  id_transfert SERIAL PRIMARY KEY,
+  id_exemplaire INTEGER NOT NULL REFERENCES Exemplaires(id_exemplaire),
+  id_bibliotheque_depart INTEGER NOT NULL REFERENCES Bibliotheques(id_bibliotheque),
+  id_bibliotheque_arrivee INTEGER NOT NULL REFERENCES Bibliotheques(id_bibliotheque),
+  date_demande DATE NOT NULL,
+  date_arrivee DATE NOT NULL CHECK (date_arrivee >= date_demande)
 );
 
-CREATE TABLE IF NOT EXISTS Achats(
-    id_achat integer generated always as identity primary key,
-    id_exemplaire integer not null REFERENCES Exemplaires,
-    prix integer not null,
-    date_achat date not null,
-    fournisseur varchar not null
+CREATE TABLE IF NOT EXISTS Achats (
+  id_achat SERIAL PRIMARY KEY,
+  id_exemplaire INTEGER NOT NULL REFERENCES Exemplaires(id_exemplaire),
+  prix INTEGER NOT NULL CHECK (prix >= 0),
+  date_achat DATE NOT NULL,
+  fournisseur VARCHAR(255) NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS Penalites(
-    id_penalite integer generated always as identity primary key,
-    nature_infraction varchar not null,
-    id_pret integer not null,
-    id_personne integer not null REFERENCES Personnes
+CREATE TABLE IF NOT EXISTS Penalites (
+  id_penalite SERIAL PRIMARY KEY,
+  nature_infraction VARCHAR(255) NOT NULL,
+  id_pret INTEGER NOT NULL REFERENCES Prets(id_pret),
+  id_personne INTEGER NOT NULL REFERENCES Personnes(id_personne)
 );
 
-CREATE TABLE IF NOT EXISTS Amendes(
-    id_penalite integer primary key REFERENCES Penalites,
-    montant integer not null
+CREATE TABLE IF NOT EXISTS Amendes (
+  id_penalite INTEGER PRIMARY KEY REFERENCES Penalites(id_penalite),
+  montant INTEGER NOT NULL CHECK (montant >= 0)
 );
 
-CREATE TABLE IF NOT EXISTS Amendes_Reglements(
-    id_amende_reglement integer generated always as identity primary key,
-    id_penalite integer NOT NULL REFERENCES Penalites,
-    date_reglement date not null
+CREATE TABLE IF NOT EXISTS Banissements_Temporaires (
+  id_penalite INTEGER PRIMARY KEY REFERENCES Penalites(id_penalite),
+  date_debut DATE NOT NULL,
+  date_fin DATE NOT NULL CHECK (date_fin > date_debut)
 );
 
-CREATE TABLE IF NOT EXISTS Banissements_Temporaires(
-    id_penalite integer primary key REFERENCES Penalites,
-    date_debut date not null,
-    date_fin date not null
-);
-
-CREATE TABLE IF NOT EXISTS Banissements(
-    id_penalite integer primary key REFERENCES Penalites,
-    date_debut date not null
+CREATE TABLE IF NOT EXISTS Banissements (
+  id_penalite INTEGER PRIMARY KEY REFERENCES Penalites(id_penalite),
+  date_debut DATE NOT NULL
 );
 
 
-
-
-CREATE OR REPLACE FUNCTION _verif_personne_reservation_ability_fn()
-RETURNS TRIGGER AS $$
-BEGIN
-
-    IF NOT EXISTS (
-        SELECT 1
-        FROM Abonnes AS ab
-        WHERE ab.id_personne = NEW.id_abonne
-    ) THEN
-        RAISE EXCEPTION "Seul un abonné peut réaliser une reservation";
-    END IF;
-
-    IF EXISTS (
-        SELECT 1
-        FROM Penalites AS p
-        JOIN Banissements AS b ON b.id_penalite = p.id_penalite
-        WHERE p.id_personne = NEW.id_abonne
-    ) THEN
-        RAISE EXCEPTION "L'abonné est banni définitevement";
-    END IF;
-
-    IF EXISTS (
-        SELECT 1
-        FROM Penalites AS p
-        JOIN Banissements_Temporaires AS bt ON bt.id_penalite = p.id_penalite
-        WHERE p.id_personne = NEW.id_
-        AND bt.date_debut <= CURRENT_DATE
-        AND CURRENT_DATE <= bt.date_fin
-    ) THEN
-        RAISE EXCEPTION "L'abonné est banni temporairement";
-    END IF;
-
-    IF EXISTS (
-        SELECT 1
-        FROM Penalites AS p
-        JOIN Amendes AS am ON am.id_penalite = p.id_penalite
-        WHERE p.id_personne = NEW.id_abonne
-        AND bt.date_debut <= CURRENT_DATE
-        AND bt.date_fin >= CURRENT_DATE
-    ) THEN
-        RAISE EXCEPTION "L'abonné a des amendes impayées";
-    END IF;
-
-RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-
-CREATE OR REPLACE FUNCTION _verif_reservation_validity_fn()
-RETURNS TRIGGER AS $$
-BEGIN
-
-    IF (NEW.date_reservation > (CURRENT_DATE + INTERVAL '1 month 15 days')) THEN
-        RAISE EXCEPTION "Un exemplaire ne peut être réservé plus d'un mois et demi à l'avance";
-    END IF;
-
-    IF EXISTS (
-        SELECT 1
-        FROM Reservation AS r
-        WHERE r.id_exemplaire = NEW.id_exemplaire
-    ) THEN
-        RAISE EXCEPTION "L'exemplaire a déjà était reservé";
-    END IF;
-
-RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
+--------------------------------------------------------------------------------
+-- Insertions initiales :
+--------------------------------------------------------------------------------
 
 INSERT INTO Personnes (nom, prenom, email)
 VALUES
@@ -314,7 +245,7 @@ VALUES
 ('Médiathèque de Lyon', '5 Rue des Archives', 'Lyon', 'France'),
 ('Bibliothèque Municipale', '10 Boulevard de la République', 'Marseille', 'France');
 
-INSERT INTO Personnels (id_personne, id_biliotheque, poste, iban)
+INSERT INTO Personnels (id_personne, id_bibliotheque, poste, iban)
 VALUES
 (31, 1, 'Directeur', 'FR7612345678901234567890123'),
 (32, 1, 'Bibliothécaire', 'FR7623456789012345678901234'),
@@ -333,6 +264,87 @@ VALUES
 (45, 3, 'Technicien informatique', 'FR7756789012345678901234567');
 
 
+
+
+--------------------------------------------------------------------------------
+-- Création des functions pour les triggers :
+--------------------------------------------------------------------------------
+
+CREATE OR REPLACE FUNCTION _verif_personne_reservation_ability_fn()
+RETURNS TRIGGER AS $$
+BEGIN
+
+    -- Vérifie que la personne soit bien abonnée :
+    IF NOT EXISTS (
+        SELECT 1
+        FROM Abonnes AS ab
+        WHERE ab.id_personne = NEW.id_abonne
+    ) THEN
+        RAISE EXCEPTION "Seul un abonné peut réaliser une reservation";
+    END IF;
+
+    -- Vérifie que l'abonné n'ait pas était banni définitivement :
+    IF EXISTS (
+        SELECT 1
+        FROM Penalites AS p
+        JOIN Banissements AS b ON b.id_penalite = p.id_penalite
+        WHERE p.id_personne = NEW.id_abonne
+    ) THEN
+        RAISE EXCEPTION "L'abonné est banni définitevement";
+    END IF;
+
+    -- Vérifier que l'abonné n'ait pas était banni temporairement :
+    IF EXISTS (
+        SELECT 1
+        FROM Penalites AS p
+        JOIN Banissements_Temporaires AS bt ON bt.id_penalite = p.id_penalite
+        WHERE p.id_personne = NEW.id_abonne
+        AND bt.date_debut <= CURRENT_DATE
+        AND CURRENT_DATE <= bt.date_fin
+    ) THEN
+        RAISE EXCEPTION "L'abonné est banni temporairement";
+    END IF;
+
+    -- Vérifier que l'abonné n'ait pas d'amendes impayées :
+    IF EXISTS (
+        SELECT 1
+        FROM Penalites AS p
+        JOIN Amendes AS am ON am.id_penalite = p.id_penalite
+        WHERE p.id_personne = NEW.id_abonne
+        AND am.id_penalite NOT IN(SELECT id_penalite FROM Amendes_Reglements)
+    ) THEN
+        RAISE EXCEPTION "L'abonné a des amendes impayées";
+    END IF;
+
+RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+
+CREATE OR REPLACE FUNCTION _verif_reservation_validity_fn()
+RETURNS TRIGGER AS $$
+BEGIN
+
+    -- Vérifier si le livre n'est pas reservé bcp trop tôt (plus de 1.5 mois)
+    IF (NEW.date_reservation > (CURRENT_DATE + INTERVAL '1 month 15 days')) THEN
+        RAISE EXCEPTION "Un exemplaire ne peut être réservé plus d'un mois et demi à l'avance";
+    END IF;
+
+    -- Vérifier si le livre n'a pas déjà était reservé
+    IF EXISTS (
+        SELECT 1
+        FROM Reservation AS r
+        WHERE r.id_exemplaire = NEW.id_exemplaire
+    ) THEN
+        RAISE EXCEPTION "L'exemplaire a déjà était reservé";
+    END IF;
+
+RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+
+
 --------------------------------------------------------------------------------
 -- MAIN FUNCTION :
 --------------------------------------------------------------------------------
@@ -345,11 +357,13 @@ BEGIN
         NEW.date_reservation = CURRENT_DATE;
     ELSIF (NEW.date_reservation < CURRENT_DATE) THEN
         RAISE EXCEPTION "Date de reservation erronée";
-    END IF;
+	END IF;
 
     IF (NEW.date_fin IS NULL) THEN
         NEW.date_fin := NEW.date_debut + INTERVAL '2 weeks';
-    END IF;
+	END IF;
+
+    -- TODO : Lever un exception si la date de fin est trop loin une fois que l'on connaîtra la durée max d'une reservation 
 
     EXECUTE _verif_personne_reservation_ability_fn();
     EXECUTE _verif_reservation_validity_fn();
@@ -361,17 +375,18 @@ $$ LANGUAGE plpgsql;
 
 
 --------------------------------------------------------------------------------
--- EMPRUNTS
+-- Création des triggers :
 --------------------------------------------------------------------------------
+
+
+
+
+-- EMPRUNTS :
 
 -- ...
 
 
-
---------------------------------------------------------------------------------
--- RESERVATIONS
---------------------------------------------------------------------------------
-
+-- RESERVATIONS :
 
 CREATE TRIGGER verif_reservation_insert
     BEFORE INSERT ON Reservations
@@ -384,5 +399,49 @@ CREATE TRIGGER verif_reservation_insert
 -- Tests :
 --------------------------------------------------------------------------------
 
--- ...
+-- Test 1 : Reservation de la part d'une personne non-abbonnée
+/*
+INSERT INTO Reservations (id_exemplaire, id_abonne) VALUES (3, 1);
+*/
+
+
+-- Test 2 : Reservation d'un exemplaire déjà reservé
+/*
+INSERT INTO Reservations (id_exemplaire, id_abonne, date_reservation, date_expiration)
+	VALUES (4, 11, CURRENT_DATE, CURRENT_DATE + INTERVAL '7 days');
+
+INSERT INTO Reservations (id_exemplaire, id_abonne, date_debut, date_fin)
+	VALUES (4, 12, CURRENT_DATE, CURRENT_DATE + INTERVAL '1 month');
+*/
+
+
+-- Test 3 : Abonné temporairement banni
+/*
+INSERT INTO Penalites (nature_infraction, id_pret, id_personne) VALUES ('Retard', 1, 12);
+INSERT INTO Banissements_Temporaires (id_penalite, date_debut, date_fin) VALUES (1, CURRENT_DATE - INTERVAL '1 day', CURRENT_DATE + INTERVAL '1 day');
+INSERT INTO Reservations (id_exemplaire, id_abonne) VALUES (6, 12);
+*/
+
+
+-- Test 4 : Abonné définitivement banni)
+/*
+INSERT INTO Penalites (nature_infraction, id_pret, id_personne) VALUES ('Fraude', 1, 13);
+INSERT INTO Banissements (id_penalite, date_debut) VALUES (1, CURRENT_DATE - INTERVAL '1 day');
+INSERT INTO Reservations (id_exemplaire, id_abonne) VALUES (1, 13);
+*/
+
+
+-- Test 5: Abonné n'ayant pas encore rêglé son amende
+/*
+INSERT INTO Penalites (nature_infraction, id_pret, id_personne) VALUES ('Amende', 1, 13);
+INSERT INTO Amendes (id_penalite, montant) VALUES (1, 25);
+INSERT INTO Prets (id_exemplaire, id_abonne) VALUES (1, 13);
+*/
+
+
+-- Test 6 : Insertion d'un prêt avec une date de début incorrecte
+/*
+INSERT INTO Prets (id_exemplaire, id_abonne, date_fin)
+VALUES (2, 12, CURRENT_DATE - INTERVAL '10 days');
+*/
 ```

@@ -88,7 +88,7 @@ VALUES
 ('Médiathèque de Lyon', '5 Rue des Archives', 'Lyon', 'France'),
 ('Bibliothèque Municipale', '10 Boulevard de la République', 'Marseille', 'France');
 
-INSERT INTO Personnels (id_personne, id_biliotheque, poste, iban)
+INSERT INTO Personnels (id_personne, id_bibliotheque, poste, iban)
 VALUES
 (31, 1, 'Directeur', 'FR7612345678901234567890123'),
 (32, 1, 'Bibliothécaire', 'FR7623456789012345678901234'),
