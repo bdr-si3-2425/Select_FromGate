@@ -102,7 +102,7 @@ CREATE TABLE IF NOT EXISTS Prets (
   date_debut DATE NOT NULL,
   date_fin DATE NOT NULL CHECK (date_fin > date_debut),
   compteur_renouvellement INTEGER NOT NULL DEFAULT 0 CHECK (compteur_renouvellement >= 0),
-  retard INTEGER NOT NULL DEFAULT 0 CHECK (retard >= 0)
+  depassement INTEGER NOT NULL DEFAULT 0 CHECK (depassement >= 0)
 );
 
 CREATE TABLE IF NOT EXISTS Interventions (
@@ -177,7 +177,7 @@ VALUES
 ('Caron', 'Alice', 'alice.caron@example.com'),
 ('Lemoine', 'Pierre', 'pierre.lemoine@example.com'),
 ('Fournier', 'Chloe', 'chloe.fournier@example.com'),
-('Dupuis', 'Lucas', 'lucas.dupuis@example.com'),
+('Dupond', 'Lucas', 'lucas.dupond@example.com'),
 ('Lemoine', 'Pierre', 'pierre.lemoine@example.com'),
 ('Fournier', 'Chloe', 'chloe.fournier@example.com'),
 ('Petit', 'Maxime', 'maxime.petit@example.com'),
@@ -218,26 +218,26 @@ VALUES
 
 INSERT INTO Abonnes (id_personne, adresse, ville, code_postal, pays, rib, id_abonnement)
 VALUES
-(11, '12 Rue des Lilas', 'Paris', 75012, 'France', 'FR7630003000701234567890125', 1),
-(12, '45 Avenue des Champs', 'Lyon', 69002, 'France', 'FR7630003000709876543210987', 2),
-(13, '3 Impasse des Jardins', 'Marseille', 13008, 'France', 'FR7630003000705678901234567', 1),
-(14, '9 Boulevard Saint-Michel', 'Toulouse', 31000, 'France', 'FR7630003000702345678912345', 3),
-(15, '14 Rue de la République', 'Bordeaux', 33000, 'France', 'FR7630003000700987654321234', 2),
-(16, '22 Place Bellecour', 'Lille', 59000, 'France', 'FR7630003000701122334455667', 3),
-(17, '5 Rue Nationale', 'Nantes', 44000, 'France', 'FR7630003000702233445566778', 1),
-(18, '18 Rue des Fleurs', 'Strasbourg', 67000, 'France', 'FR7630003000703344556677889', 2),
-(19, '7 Avenue de la Paix', 'Rennes', 35000, 'France', 'FR7630003000704455667788990', 1),
-(20, '11 Rue Victor Hugo', 'Nice', 06000, 'France', 'FR7630003000705566778899001', 3),
-(21, '12 Rue des Lilas', 'Paris', 75012, 'France', 'FR7630003000701234567890125', 1),
-(22, '45 Avenue des Champs', 'Lyon', 69002, 'France', 'FR7630003000709876543210987', 2),
-(23, '3 Impasse des Jardins', 'Marseille', 13008, 'France', 'FR7630003000705678901234567', 1),
-(24, '9 Boulevard Saint-Michel', 'Toulouse', 31000, 'France', 'FR7630003000702345678912345', 3),
-(25, '14 Rue de la République', 'Bordeaux', 33000, 'France', 'FR7630003000700987654321234', 2),
-(26, '22 Place Bellecour', 'Lille', 59000, 'France', 'FR7630003000701122334455667', 3),
-(27, '5 Rue Nationale', 'Nantes', 44000, 'France', 'FR7630003000702233445566778', 1),
-(28, '18 Rue des Fleurs', 'Strasbourg', 67000, 'France', 'FR7630003000703344556677889', 2),
-(29, '7 Avenue de la Paix', 'Rennes', 35000, 'France', 'FR7630003000704455667788990', 1),
-(30, '11 Rue Victor Hugo', 'Nice', 06000, 'France', 'FR7630003000705566778899001', 3);
+(11, '12 Rue des Lilas', 'Paris', '75012', 'France', 'FR7630003000701234567890125', 1),
+(12, '45 Avenue des Champs', 'Lyon', '69002', 'France', 'FR7630003000709876543210987', 2),
+(13, '3 Impasse des Jardins', 'Marseille', '13008', 'France', 'FR7630003000705678901234567', 1),
+(14, '9 Boulevard Saint-Michel', 'Toulouse', '31000', 'France', 'FR7630003000702345678912345', 3),
+(15, '14 Rue de la République', 'Bordeaux', '33000', 'France', 'FR7630003000700987654321234', 2),
+(16, '22 Place Bellecour', 'Lille', '59000', 'France', 'FR7630003000701122334455667', 3),
+(17, '5 Rue Nationale', 'Nantes', '44000', 'France', 'FR7630003000702233445566778', 1),
+(18, '18 Rue des Fleurs', 'Strasbourg', '67000', 'France', 'FR7630003000703344556677889', 2),
+(19, '7 Avenue de la Paix', 'Rennes', '35000', 'France', 'FR7630003000704455667788990', 1),
+(20, '11 Rue Victor Hugo', 'Nice', '06000', 'France', 'FR7630003000705566778899001', 3),
+(21, '12 Rue des Lilas', 'Paris', '75012', 'France', 'FR7630003000701234567890125', 1),
+(22, '45 Avenue des Champs', 'Lyon', '69002', 'France', 'FR7630003000709876543210987', 2),
+(23, '3 Impasse des Jardins', 'Marseille', '13008', 'France', 'FR7630003000705678901234567', 1),
+(24, '9 Boulevard Saint-Michel', 'Toulouse', '31000', 'France', 'FR7630003000702345678912345', 3),
+(25, '14 Rue de la République', 'Bordeaux', '33000', 'France', 'FR7630003000700987654321234', 2),
+(26, '22 Place Bellecour', 'Lille', '59000', 'France', 'FR7630003000701122334455667', 3),
+(27, '5 Rue Nationale', 'Nantes', '44000', 'France', 'FR7630003000702233445566778', 1),
+(28, '18 Rue des Fleurs', 'Strasbourg', '67000', 'France', 'FR7630003000703344556677889', 2),
+(29, '7 Avenue de la Paix', 'Rennes', '35000', 'France', 'FR7630003000704455667788990', 1),
+(30, '11 Rue Victor Hugo', 'Nice', '06000', 'France', 'FR7630003000705566778899001', 3);
 
 INSERT INTO Bibliotheques (nom_bibliotheque, adresse, ville, pays)
 VALUES
@@ -265,111 +265,105 @@ VALUES
 
 
 
-
 --------------------------------------------------------------------------------
--- Création des functions pour les triggers :
+-- Fonctions auxiliaires pour les triggers :
 --------------------------------------------------------------------------------
 
-CREATE OR REPLACE FUNCTION _verif_personne_reservation_ability_fn()
-RETURNS TRIGGER AS $$
+-- Cette fonction vérifie que la personne effectuant la réservation possède le droit de réserver.
+-- Elle prend en paramètre un enregistrement de la table Reservations.
+CREATE OR REPLACE FUNCTION _verif_personne_reservation_ability_fn(_new Reservations)
+RETURNS void AS $$
 BEGIN
-
     -- Vérifie que la personne soit bien abonnée :
     IF NOT EXISTS (
         SELECT 1
-        FROM Abonnes AS ab
-        WHERE ab.id_personne = NEW.id_abonne
+        FROM Abonnes ab
+        WHERE ab.id_personne = _new.id_abonne
     ) THEN
-        RAISE EXCEPTION "Seul un abonné peut réaliser une reservation";
+        RAISE EXCEPTION 'Seul un abonné peut réaliser une reservation';
     END IF;
 
-    -- Vérifie que l'abonné n'ait pas était banni définitivement :
+    -- Vérifie que l'abonné n'ait pas été banni définitivement :
     IF EXISTS (
         SELECT 1
-        FROM Penalites AS p
-        JOIN Banissements AS b ON b.id_penalite = p.id_penalite
-        WHERE p.id_personne = NEW.id_abonne
+        FROM Penalites p
+        JOIN Banissements b ON b.id_penalite = p.id_penalite
+        WHERE p.id_personne = _new.id_abonne
     ) THEN
-        RAISE EXCEPTION "L'abonné est banni définitevement";
+        RAISE EXCEPTION 'L''abonné est banni définitevement';
     END IF;
 
-    -- Vérifier que l'abonné n'ait pas était banni temporairement :
+    -- Vérifie que l'abonné n'ait pas été banni temporairement :
     IF EXISTS (
         SELECT 1
-        FROM Penalites AS p
-        JOIN Banissements_Temporaires AS bt ON bt.id_penalite = p.id_penalite
-        WHERE p.id_personne = NEW.id_abonne
-        AND bt.date_debut <= CURRENT_DATE
-        AND CURRENT_DATE <= bt.date_fin
+        FROM Penalites p
+        JOIN Banissements_Temporaires bt ON bt.id_penalite = p.id_penalite
+        WHERE p.id_personne = _new.id_abonne
+          AND bt.date_debut <= CURRENT_DATE
+          AND CURRENT_DATE <= bt.date_fin
     ) THEN
-        RAISE EXCEPTION "L'abonné est banni temporairement";
+        RAISE EXCEPTION 'L''abonné est banni temporairement';
     END IF;
 
-    -- Vérifier que l'abonné n'ait pas d'amendes impayées :
+    -- Vérifie que l'abonné n'ait pas d'amendes impayées :
     IF EXISTS (
         SELECT 1
-        FROM Penalites AS p
-        JOIN Amendes AS am ON am.id_penalite = p.id_penalite
-        WHERE p.id_personne = NEW.id_abonne
-        AND am.id_penalite NOT IN(SELECT id_penalite FROM Amendes_Reglements)
+        FROM Penalites p
+        JOIN Amendes am ON am.id_penalite = p.id_penalite
+        WHERE p.id_personne = _new.id_abonne
+          AND am.id_penalite NOT IN (SELECT id_penalite FROM Amendes_Reglements)
     ) THEN
-        RAISE EXCEPTION "L'abonné a des amendes impayées";
+        RAISE EXCEPTION 'L''abonné a des amendes impayées';
     END IF;
-
-RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
 
-CREATE OR REPLACE FUNCTION _verif_reservation_validity_fn()
-RETURNS TRIGGER AS $$
+-- Cette fonction vérifie la validité d'une réservation.
+CREATE OR REPLACE FUNCTION _verif_reservation_validity_fn(_new Reservations)
+RETURNS void AS $$
 BEGIN
-
-    -- Vérifier si le livre n'est pas reservé bcp trop tôt (plus de 1.5 mois)
-    IF (NEW.date_reservation > (CURRENT_DATE + INTERVAL '1 month 15 days')) THEN
-        RAISE EXCEPTION "Un exemplaire ne peut être réservé plus d'un mois et demi à l'avance";
+    -- Vérifier si la réservation n'est pas faite trop tôt (plus d'1 mois et demi à l'avance)
+    IF (_new.date_reservation > (CURRENT_DATE + INTERVAL '1 month 15 days')) THEN
+        RAISE EXCEPTION 'Un exemplaire ne peut être réservé plus d''un mois et demi à l''avance';
     END IF;
 
-    -- Vérifier si le livre n'a pas déjà était reservé
+    -- Vérifier si l'exemplaire n'a pas déjà été réservé
     IF EXISTS (
         SELECT 1
-        FROM Reservation AS r
-        WHERE r.id_exemplaire = NEW.id_exemplaire
+        FROM Reservations r
+        WHERE r.id_exemplaire = _new.id_exemplaire
     ) THEN
-        RAISE EXCEPTION "L'exemplaire a déjà était reservé";
+        RAISE EXCEPTION 'L''exemplaire a déjà été réservé';
     END IF;
-
-RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
-
 
 
 --------------------------------------------------------------------------------
--- MAIN FUNCTION :
+-- Fonction trigger principale :
 --------------------------------------------------------------------------------
 
 CREATE OR REPLACE FUNCTION verif_reservation_insert_fn()
 RETURNS TRIGGER AS $$
 BEGIN
+    -- Si la date de réservation n'est pas précisée, on la met à la date du jour.
+    IF NEW.date_reservation IS NULL THEN
+        NEW.date_reservation := CURRENT_DATE;
+    ELSIF NEW.date_reservation < CURRENT_DATE THEN
+        RAISE EXCEPTION 'Date de reservation erronée';
+    END IF;
 
-    IF (NEW.date_reservation IS NULL) THEN
-        NEW.date_reservation = CURRENT_DATE;
-    ELSIF (NEW.date_reservation < CURRENT_DATE) THEN
-        RAISE EXCEPTION "Date de reservation erronée";
-	END IF;
+    -- Si la date d'expiration n'est pas renseignée, on la fixe à 2 semaines après la date de réservation.
+    IF NEW.date_expiration IS NULL THEN
+        NEW.date_expiration := NEW.date_reservation + INTERVAL '2 weeks';
+    END IF;
 
-    IF (NEW.date_fin IS NULL) THEN
-        NEW.date_fin := NEW.date_debut + INTERVAL '2 weeks';
-	END IF;
+    -- Appel des fonctions de vérification.
+    PERFORM _verif_personne_reservation_ability_fn(NEW);
+    PERFORM _verif_reservation_validity_fn(NEW);
 
-    -- TODO : Lever un exception si la date de fin est trop loin une fois que l'on connaîtra la durée max d'une reservation 
-
-    EXECUTE _verif_personne_reservation_ability_fn();
-    EXECUTE _verif_reservation_validity_fn();
-    USING NEW;
-
-RETURN NEW;
+    RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
@@ -378,20 +372,10 @@ $$ LANGUAGE plpgsql;
 -- Création des triggers :
 --------------------------------------------------------------------------------
 
-
-
-
--- EMPRUNTS :
-
--- ...
-
-
--- RESERVATIONS :
-
 CREATE TRIGGER verif_reservation_insert
     BEFORE INSERT ON Reservations
     FOR EACH ROW
-    EXECUTE FUNCTION verif_reservation_insert_fn;
+    EXECUTE FUNCTION verif_reservation_insert_fn();
 
 
 
