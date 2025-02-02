@@ -1,5 +1,5 @@
-INSERT INTO Personnes (nom, prenom, email) 
-VALUES 
+INSERT INTO Personnes (nom, prenom, email)
+VALUES
 ('Dupont', 'Jean', 'jean.dupont@example.com'),
 ('Martin', 'Claire', 'claire.martin@example.com'),
 ('Durand', 'Paul', 'paul.durand@example.com'),
