@@ -8,3 +8,7 @@ CREATE TRIGGER verif_book_reserved_prolongation
     FOR EACH ROW
     EXECUTE FUNCTION verif_book_reserved_prolongation_fn();
 
+CREATE TRIGGER verif_end_of_subsription
+	BEFORE DELETE ON Abonnes
+	FOR EACH ROW
+	EXECUTE FUNCTION verif_end_of_subsription_fn();
