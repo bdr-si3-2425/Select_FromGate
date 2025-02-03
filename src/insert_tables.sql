@@ -1,5 +1,5 @@
-INSERT INTO Personnes (nom, prenom, email)
-VALUES
+INSERT INTO Personnes (nom, prenom, email) 
+VALUES 
 ('Dupont', 'Jean', 'jean.dupont@example.com'),
 ('Martin', 'Claire', 'claire.martin@example.com'),
 ('Durand', 'Paul', 'paul.durand@example.com'),
@@ -20,9 +20,9 @@ VALUES
 ('Caron', 'Alice', 'alice.caron@example.com'),
 ('Lemoine', 'Pierre', 'pierre.lemoine@example.com'),
 ('Fournier', 'Chloe', 'chloe.fournier@example.com'),
-('Dupond', 'Lucas', 'lucas.dupond@example.com'),
-('Leminou', 'Pierre', 'pierre.leminou@example.com'),
-('Furieux', 'Chloe', 'chloe.furieux@example.com'),
+('Pierre', 'Lucas', 'lucas.pierre@example.com'),
+('Dupont', 'Pierre', 'pierre.duponte@example.com'),
+('Fourier', 'Chloe', 'chloe.fourier@example.com'),
 ('Petit', 'Maxime', 'maxime.petit@example.com'),
 ('Martin', 'Sophie', 'sophie.martin@example.com'),
 ('Leclerc', 'Alice', 'alice.leclerc@example.com'),
@@ -61,26 +61,26 @@ VALUES
 
 INSERT INTO Abonnes (id_personne, adresse, ville, code_postal, pays, rib, id_abonnement)
 VALUES
-(11, '12 Rue des Lilas', 'Paris', '75012', 'France', 'FR7630003000701234567890125', 1),
-(12, '45 Avenue des Champs', 'Lyon', '69002', 'France', 'FR7630003000709876543210987', 2),
-(13, '3 Impasse des Jardins', 'Marseille', '13008', 'France', 'FR7630003000705678901234567', 1),
-(14, '9 Boulevard Saint-Michel', 'Toulouse', '31000', 'France', 'FR7630003000702345678912345', 3),
-(15, '14 Rue de la République', 'Bordeaux', '33000', 'France', 'FR7630003000700987654321234', 2),
-(16, '22 Place Bellecour', 'Lille', '59000', 'France', 'FR7630003000701122334455667', 3),
-(17, '5 Rue Nationale', 'Nantes', '44000', 'France', 'FR7630003000702233445566778', 1),
-(18, '18 Rue des Fleurs', 'Strasbourg', '67000', 'France', 'FR7630003000703344556677889', 2),
-(19, '7 Avenue de la Paix', 'Rennes', '35000', 'France', 'FR7630003000704455667788990', 1),
-(20, '11 Rue Victor Hugo', 'Nice', '06000', 'France', 'FR7630003000705566778899001', 3),
-(21, '12 Rue des Lilas', 'Paris', '75012', 'France', 'FR7630003000701234567890125', 1),
-(22, '45 Avenue des Champs', 'Lyon', '69002', 'France', 'FR7630003000709876543210987', 2),
-(23, '3 Impasse des Jardins', 'Marseille', '13008', 'France', 'FR7630003000705678901234567', 1),
-(24, '9 Boulevard Saint-Michel', 'Toulouse', '31000', 'France', 'FR7630003000702345678912345', 3),
-(25, '14 Rue de la République', 'Bordeaux', '33000', 'France', 'FR7630003000700987654321234', 2),
-(26, '22 Place Bellecour', 'Lille', '59000', 'France', 'FR7630003000701122334455667', 3),
-(27, '5 Rue Nationale', 'Nantes', '44000', 'France', 'FR7630003000702233445566778', 1),
-(28, '18 Rue des Fleurs', 'Strasbourg', '67000', 'France', 'FR7630003000703344556677889', 2),
-(29, '7 Avenue de la Paix', 'Rennes', '35000', 'France', 'FR7630003000704455667788990', 1),
-(30, '11 Rue Victor Hugo', 'Nice', '06000', 'France', 'FR7630003000705566778899001', 3);
+(11, '12 Rue des Lilas', 'Paris', 75012, 'France', 'FR7630003000701234567890125', 1),
+(12, '45 Avenue des Champs', 'Lyon', 69002, 'France', 'FR7630003000709876543210987', 2),
+(13, '3 Impasse des Jardins', 'Marseille', 13008, 'France', 'FR7630003000705678901234567', 1),
+(14, '9 Boulevard Saint-Michel', 'Toulouse', 31000, 'France', 'FR7630003000702345678912345', 3),
+(15, '14 Rue de la République', 'Bordeaux', 33000, 'France', 'FR7630003000700987654321234', 2),
+(16, '22 Place Bellecour', 'Lille', 59000, 'France', 'FR7630003000701122334455667', 3),
+(17, '5 Rue Nationale', 'Nantes', 44000, 'France', 'FR7630003000702233445566778', 1),
+(18, '18 Rue des Fleurs', 'Strasbourg', 67000, 'France', 'FR7630003000703344556677889', 2),
+(19, '7 Avenue de la Paix', 'Rennes', 35000, 'France', 'FR7630003000704455667788990', 1),
+(20, '11 Rue Victor Hugo', 'Nice', 06000, 'France', 'FR7630003000705566778899001', 3),
+(21, '12 Rue des Lilas', 'Paris', 75012, 'France', 'FR7630003000701234567890125', 1),
+(22, '45 Avenue des Champs', 'Lyon', 69002, 'France', 'FR7630003000709876543210987', 2),
+(23, '3 Impasse des Jardins', 'Marseille', 13008, 'France', 'FR7630003000705678901234567', 1),
+(24, '9 Boulevard Saint-Michel', 'Toulouse', 31000, 'France', 'FR7630003000702345678912345', 3),
+(25, '14 Rue de la République', 'Bordeaux', 33000, 'France', 'FR7630003000700987654321234', 2),
+(26, '22 Place Bellecour', 'Lille', 59000, 'France', 'FR7630003000701122334455667', 3),
+(27, '5 Rue Nationale', 'Nantes', 44000, 'France', 'FR7630003000702233445566778', 1),
+(28, '18 Rue des Fleurs', 'Strasbourg', 67000, 'France', 'FR7630003000703344556677889', 2),
+(29, '7 Avenue de la Paix', 'Rennes', 35000, 'France', 'FR7630003000704455667788990', 1),
+(30, '11 Rue Victor Hugo', 'Nice', 06000, 'France', 'FR7630003000705566778899001', 3);
 
 INSERT INTO Bibliotheques (nom_bibliotheque, adresse, ville, pays)
 VALUES
@@ -88,7 +88,7 @@ VALUES
 ('Médiathèque de Lyon', '5 Rue des Archives', 'Lyon', 'France'),
 ('Bibliothèque Municipale', '10 Boulevard de la République', 'Marseille', 'France');
 
-INSERT INTO Personnels (id_personne, id_bibliotheque, poste, iban)
+INSERT INTO Personnels (id_personne, id_biliotheque, poste, iban)
 VALUES
 (31, 1, 'Directeur', 'FR7612345678901234567890123'),
 (32, 1, 'Bibliothécaire', 'FR7623456789012345678901234'),
@@ -105,6 +105,13 @@ VALUES
 (39, 3, 'Bibliothécaire', 'FR7690123456789012345678901'),
 (44, 3, 'Agent de sécurité', 'FR7745678901234567890123456'),
 (45, 3, 'Technicien informatique', 'FR7756789012345678901234567');
+
+INSERT INTO Ouvrages (titre, autheur, annee, nb_pages, edition, id_collection, resume, prix) 
+VALUES 
+('Le Seigneur des Anneaux', 'J.R.R. Tolkien', 1954, 1200, 'Allen & Unwin', 1, 'Un groupe d amis part en quête pour détruire un anneau maléfique et sauver leur monde.', 25),
+('1984', 'George Orwell', 1949, 328, 'Secker & Warburg', 2, 'Dans un futur totalitaire, un homme lutte contre le contrôle absolu de la pensée.', 15),
+('Harry Potter à l École des Sorciers', 'J.K. Rowling', 1997, 309, 'Bloomsbury', 3, 'Un jeune orphelin découvre qu il est un sorcier et entre dans une école magique.', 20),
+('La Peste', 'Albert Camus', 1947, 324, 'Gallimard', 4, 'Une épidémie de peste frappe une ville et les habitants luttent pour survivre.', 18);
 
 INSERT INTO Exemplaires (id_ouvrage, id_bibliotheque)
 VALUES
