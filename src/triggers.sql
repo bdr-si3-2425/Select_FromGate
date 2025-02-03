@@ -23,7 +23,7 @@
 CREATE TRIGGER verif_reservation_insert
     BEFORE INSERT ON Reservations
     FOR EACH ROW
-    EXECUTE FUNCTION verif_reservation_insert_fn;
+    EXECUTE FUNCTION verif_reservation_insert_fn();
 
 -- TODO : À implémenter si besoin
 

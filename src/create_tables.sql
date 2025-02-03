@@ -35,7 +35,7 @@ CREATE TABLE IF NOT EXISTS Bibliotheques (
 
 CREATE TABLE IF NOT EXISTS Personnels (
   id_personne integer primary key REFERENCES Personnes,
-  id_biliotheque integer not null REFERENCES Bibliotheques,
+  id_bibliotheque integer not null REFERENCES Bibliotheques,
   poste varchar not null,
   iban varchar not null
 );
@@ -58,7 +58,7 @@ CREATE TABLE IF NOT EXISTS Evenements (
 CREATE TABLE IF NOT EXISTS Ouvrages (
   id_ouvrage integer generated always as identity primary key,
   titre varchar not null,
-  autheur varchar not null,
+  auteur varchar not null,
   annee integer not null,
   nb_pages integer not null,
   edition varchar not null,

@@ -1,5 +1,5 @@
-INSERT INTO Personnes (nom, prenom, email) 
-VALUES 
+INSERT INTO Personnes (nom, prenom, email)
+VALUES
 ('Dupont', 'Jean', 'jean.dupont@example.com'),
 ('Martin', 'Claire', 'claire.martin@example.com'),
 ('Durand', 'Paul', 'paul.durand@example.com'),
@@ -88,7 +88,7 @@ VALUES
 ('Médiathèque de Lyon', '5 Rue des Archives', 'Lyon', 'France'),
 ('Bibliothèque Municipale', '10 Boulevard de la République', 'Marseille', 'France');
 
-INSERT INTO Personnels (id_personne, id_biliotheque, poste, iban)
+INSERT INTO Personnels (id_personne, id_bibliotheque, poste, iban)
 VALUES
 (31, 1, 'Directeur', 'FR7612345678901234567890123'),
 (32, 1, 'Bibliothécaire', 'FR7623456789012345678901234'),
@@ -106,8 +106,8 @@ VALUES
 (44, 3, 'Agent de sécurité', 'FR7745678901234567890123456'),
 (45, 3, 'Technicien informatique', 'FR7756789012345678901234567');
 
-INSERT INTO Ouvrages (titre, autheur, annee, nb_pages, edition, id_collection, resume, prix) 
-VALUES 
+INSERT INTO Ouvrages (titre, autheur, annee, nb_pages, edition, id_collection, resume, prix)
+VALUES
 ('Le Seigneur des Anneaux', 'J.R.R. Tolkien', 1954, 1200, 'Allen & Unwin', 1, 'Un groupe d amis part en quête pour détruire un anneau maléfique et sauver leur monde.', 25),
 ('1984', 'George Orwell', 1949, 328, 'Secker & Warburg', 2, 'Dans un futur totalitaire, un homme lutte contre le contrôle absolu de la pensée.', 15),
 ('Harry Potter à l École des Sorciers', 'J.K. Rowling', 1997, 309, 'Bloomsbury', 3, 'Un jeune orphelin découvre qu il est un sorcier et entre dans une école magique.', 20),
