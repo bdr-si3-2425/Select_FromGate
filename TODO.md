@@ -102,7 +102,7 @@ CREATE TABLE IF NOT EXISTS Prets (
   date_debut DATE NOT NULL,
   date_fin DATE NOT NULL CHECK (date_fin > date_debut),
   compteur_renouvellement INTEGER NOT NULL DEFAULT 0 CHECK (compteur_renouvellement >= 0),
-  depassement INTEGER NOT NULL DEFAULT 0 CHECK (depassement >= 0)
+  retard INTEGER NOT NULL DEFAULT 0 CHECK (retard >= 0)
 );
 
 CREATE TABLE IF NOT EXISTS Interventions (
@@ -137,6 +137,12 @@ CREATE TABLE IF NOT EXISTS Penalites (
 CREATE TABLE IF NOT EXISTS Amendes (
   id_penalite INTEGER PRIMARY KEY REFERENCES Penalites(id_penalite),
   montant INTEGER NOT NULL CHECK (montant >= 0)
+);
+
+CREATE TABLE IF NOT EXISTS Amendes_Reglements(
+  id_amende_reglement INTEGER generated always as identity PRIMARY KEY,
+  id_penalite INTEGER NOT NULL REFERENCES Penalites,
+  date_reglement DATE not null
 );
 
 CREATE TABLE IF NOT EXISTS Banissements_Temporaires (
@@ -178,8 +184,8 @@ VALUES
 ('Lemoine', 'Pierre', 'pierre.lemoine@example.com'),
 ('Fournier', 'Chloe', 'chloe.fournier@example.com'),
 ('Dupond', 'Lucas', 'lucas.dupond@example.com'),
-('Lemoine', 'Pierre', 'pierre.lemoine@example.com'),
-('Fournier', 'Chloe', 'chloe.fournier@example.com'),
+('Leminou', 'Pierre', 'pierre.leminou@example.com'),
+('Furieux', 'Chloe', 'chloe.furieux@example.com'),
 ('Petit', 'Maxime', 'maxime.petit@example.com'),
 ('Martin', 'Sophie', 'sophie.martin@example.com'),
 ('Leclerc', 'Alice', 'alice.leclerc@example.com'),
@@ -263,23 +269,23 @@ VALUES
 (44, 3, 'Agent de sécurité', 'FR7745678901234567890123456'),
 (45, 3, 'Technicien informatique', 'FR7756789012345678901234567');
 
+INSERT INTO Exemplaires (id_ouvrage, id_bibliotheque)
+VALUES
+  (1, 1), -- Exemplaire 1 du livre "Le seigneur des anneaux" dans la bibliothèque 1
+  (1, 1), -- Exemplaire 2 du même livre
+  (2, 1), -- Exemplaire 3 du livre "1984" dans la bibliothèque 1
+  (3, 1), -- Exemplaire 4 du livre "Harry Potter à l'école des sorciers" dans la bibliothèque 1
+  (4, 1), -- Exemplaire 5 du livre "La peste" dans la bibliothèque 1
+  (4, 1); -- Exemplaire 6 du même livre
 
 
---------------------------------------------------------------------------------
--- Fonctions auxiliaires pour les triggers :
---------------------------------------------------------------------------------
 
--- Cette fonction vérifie que la personne effectuant la réservation possède le droit de réserver.
--- Elle prend en paramètre un enregistrement de la table Reservations.
-CREATE OR REPLACE FUNCTION _verif_personne_reservation_ability_fn(_new Reservations)
-RETURNS void AS $$
+-- Vérifie la capacité de la personne à faire une réservation
+CREATE OR REPLACE FUNCTION _verif_personne_reservation_ability(rec Reservations)
+RETURNS VOID AS $$
 BEGIN
     -- Vérifie que la personne soit bien abonnée :
-    IF NOT EXISTS (
-        SELECT 1
-        FROM Abonnes ab
-        WHERE ab.id_personne = _new.id_abonne
-    ) THEN
+    IF (rec.id_abonne NOT IN (SELECT id_personne FROM Abonnes)) THEN
         RAISE EXCEPTION 'Seul un abonné peut réaliser une reservation';
     END IF;
 
@@ -288,9 +294,9 @@ BEGIN
         SELECT 1
         FROM Penalites p
         JOIN Banissements b ON b.id_penalite = p.id_penalite
-        WHERE p.id_personne = _new.id_abonne
+        WHERE p.id_personne = rec.id_abonne
     ) THEN
-        RAISE EXCEPTION 'L''abonné est banni définitevement';
+        RAISE EXCEPTION 'L''abonné est banni définitivement';
     END IF;
 
     -- Vérifie que l'abonné n'ait pas été banni temporairement :
@@ -298,19 +304,19 @@ BEGIN
         SELECT 1
         FROM Penalites p
         JOIN Banissements_Temporaires bt ON bt.id_penalite = p.id_penalite
-        WHERE p.id_personne = _new.id_abonne
+        WHERE p.id_personne = rec.id_abonne
           AND bt.date_debut <= CURRENT_DATE
           AND CURRENT_DATE <= bt.date_fin
     ) THEN
         RAISE EXCEPTION 'L''abonné est banni temporairement';
     END IF;
 
-    -- Vérifie que l'abonné n'ait pas d'amendes impayées :
+    -- Vérifier que l'abonné n'ait pas d'amendes impayées :
     IF EXISTS (
         SELECT 1
         FROM Penalites p
         JOIN Amendes am ON am.id_penalite = p.id_penalite
-        WHERE p.id_personne = _new.id_abonne
+        WHERE p.id_personne = rec.id_abonne
           AND am.id_penalite NOT IN (SELECT id_penalite FROM Amendes_Reglements)
     ) THEN
         RAISE EXCEPTION 'L''abonné a des amendes impayées';
@@ -319,20 +325,20 @@ END;
 $$ LANGUAGE plpgsql;
 
 
--- Cette fonction vérifie la validité d'une réservation.
-CREATE OR REPLACE FUNCTION _verif_reservation_validity_fn(_new Reservations)
-RETURNS void AS $$
+-- Vérifie la validité de la réservation
+CREATE OR REPLACE FUNCTION _verif_reservation_validity(rec Reservations)
+RETURNS VOID AS $$
 BEGIN
-    -- Vérifier si la réservation n'est pas faite trop tôt (plus d'1 mois et demi à l'avance)
-    IF (_new.date_reservation > (CURRENT_DATE + INTERVAL '1 month 15 days')) THEN
+    -- Vérifie que la date de réservation ne soit pas trop éloignée (plus de 1,5 mois à l'avance)
+    IF (rec.date_reservation > (CURRENT_DATE + INTERVAL '1 month 15 days')) THEN
         RAISE EXCEPTION 'Un exemplaire ne peut être réservé plus d''un mois et demi à l''avance';
     END IF;
 
-    -- Vérifier si l'exemplaire n'a pas déjà été réservé
+    -- Vérifie que l'exemplaire n'ait pas déjà été réservé
     IF EXISTS (
         SELECT 1
         FROM Reservations r
-        WHERE r.id_exemplaire = _new.id_exemplaire
+        WHERE r.id_exemplaire = rec.id_exemplaire
     ) THEN
         RAISE EXCEPTION 'L''exemplaire a déjà été réservé';
     END IF;
@@ -340,32 +346,36 @@ END;
 $$ LANGUAGE plpgsql;
 
 
+
 --------------------------------------------------------------------------------
--- Fonction trigger principale :
+-- FONCTION PRINCIPALE DE VÉRIFICATION (déclencheur)
 --------------------------------------------------------------------------------
 
 CREATE OR REPLACE FUNCTION verif_reservation_insert_fn()
 RETURNS TRIGGER AS $$
 BEGIN
-    -- Si la date de réservation n'est pas précisée, on la met à la date du jour.
-    IF NEW.date_reservation IS NULL THEN
+    -- Vérification et réglage de la date de réservation
+    IF (NEW.date_reservation IS NULL) THEN
         NEW.date_reservation := CURRENT_DATE;
-    ELSIF NEW.date_reservation < CURRENT_DATE THEN
+    ELSIF (NEW.date_reservation < CURRENT_DATE) THEN
         RAISE EXCEPTION 'Date de reservation erronée';
     END IF;
 
-    -- Si la date d'expiration n'est pas renseignée, on la fixe à 2 semaines après la date de réservation.
-    IF NEW.date_expiration IS NULL THEN
+    -- Si la date d'expiration n'est pas définie, on la fixe à 2 semaines après la date de début
+    IF (NEW.date_expiration IS NULL) THEN
         NEW.date_expiration := NEW.date_reservation + INTERVAL '2 weeks';
     END IF;
 
-    -- Appel des fonctions de vérification.
-    PERFORM _verif_personne_reservation_ability_fn(NEW);
-    PERFORM _verif_reservation_validity_fn(NEW);
+    -- TODO : Lever une exception si la date de fin est trop éloignée une fois que la durée max d'une reservation est connue
+
+    -- Appel des fonctions de validation en leur passant la ligne NEW
+    PERFORM _verif_personne_reservation_ability(NEW);
+    PERFORM _verif_reservation_validity(NEW);
 
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
+
 
 
 --------------------------------------------------------------------------------

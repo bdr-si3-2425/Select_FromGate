@@ -20,9 +20,9 @@ VALUES
 ('Caron', 'Alice', 'alice.caron@example.com'),
 ('Lemoine', 'Pierre', 'pierre.lemoine@example.com'),
 ('Fournier', 'Chloe', 'chloe.fournier@example.com'),
-('Dupuis', 'Lucas', 'lucas.dupuis@example.com'),
-('Lemoine', 'Pierre', 'pierre.lemoine@example.com'),
-('Fournier', 'Chloe', 'chloe.fournier@example.com'),
+('Dupond', 'Lucas', 'lucas.dupond@example.com'),
+('Leminou', 'Pierre', 'pierre.leminou@example.com'),
+('Furieux', 'Chloe', 'chloe.furieux@example.com'),
 ('Petit', 'Maxime', 'maxime.petit@example.com'),
 ('Martin', 'Sophie', 'sophie.martin@example.com'),
 ('Leclerc', 'Alice', 'alice.leclerc@example.com'),
@@ -61,26 +61,26 @@ VALUES
 
 INSERT INTO Abonnes (id_personne, adresse, ville, code_postal, pays, rib, id_abonnement)
 VALUES
-(11, '12 Rue des Lilas', 'Paris', 75012, 'France', 'FR7630003000701234567890125', 1),
-(12, '45 Avenue des Champs', 'Lyon', 69002, 'France', 'FR7630003000709876543210987', 2),
-(13, '3 Impasse des Jardins', 'Marseille', 13008, 'France', 'FR7630003000705678901234567', 1),
-(14, '9 Boulevard Saint-Michel', 'Toulouse', 31000, 'France', 'FR7630003000702345678912345', 3),
-(15, '14 Rue de la République', 'Bordeaux', 33000, 'France', 'FR7630003000700987654321234', 2),
-(16, '22 Place Bellecour', 'Lille', 59000, 'France', 'FR7630003000701122334455667', 3),
-(17, '5 Rue Nationale', 'Nantes', 44000, 'France', 'FR7630003000702233445566778', 1),
-(18, '18 Rue des Fleurs', 'Strasbourg', 67000, 'France', 'FR7630003000703344556677889', 2),
-(19, '7 Avenue de la Paix', 'Rennes', 35000, 'France', 'FR7630003000704455667788990', 1),
-(20, '11 Rue Victor Hugo', 'Nice', 06000, 'France', 'FR7630003000705566778899001', 3),
-(21, '12 Rue des Lilas', 'Paris', 75012, 'France', 'FR7630003000701234567890125', 1),
-(22, '45 Avenue des Champs', 'Lyon', 69002, 'France', 'FR7630003000709876543210987', 2),
-(23, '3 Impasse des Jardins', 'Marseille', 13008, 'France', 'FR7630003000705678901234567', 1),
-(24, '9 Boulevard Saint-Michel', 'Toulouse', 31000, 'France', 'FR7630003000702345678912345', 3),
-(25, '14 Rue de la République', 'Bordeaux', 33000, 'France', 'FR7630003000700987654321234', 2),
-(26, '22 Place Bellecour', 'Lille', 59000, 'France', 'FR7630003000701122334455667', 3),
-(27, '5 Rue Nationale', 'Nantes', 44000, 'France', 'FR7630003000702233445566778', 1),
-(28, '18 Rue des Fleurs', 'Strasbourg', 67000, 'France', 'FR7630003000703344556677889', 2),
-(29, '7 Avenue de la Paix', 'Rennes', 35000, 'France', 'FR7630003000704455667788990', 1),
-(30, '11 Rue Victor Hugo', 'Nice', 06000, 'France', 'FR7630003000705566778899001', 3);
+(11, '12 Rue des Lilas', 'Paris', '75012', 'France', 'FR7630003000701234567890125', 1),
+(12, '45 Avenue des Champs', 'Lyon', '69002', 'France', 'FR7630003000709876543210987', 2),
+(13, '3 Impasse des Jardins', 'Marseille', '13008', 'France', 'FR7630003000705678901234567', 1),
+(14, '9 Boulevard Saint-Michel', 'Toulouse', '31000', 'France', 'FR7630003000702345678912345', 3),
+(15, '14 Rue de la République', 'Bordeaux', '33000', 'France', 'FR7630003000700987654321234', 2),
+(16, '22 Place Bellecour', 'Lille', '59000', 'France', 'FR7630003000701122334455667', 3),
+(17, '5 Rue Nationale', 'Nantes', '44000', 'France', 'FR7630003000702233445566778', 1),
+(18, '18 Rue des Fleurs', 'Strasbourg', '67000', 'France', 'FR7630003000703344556677889', 2),
+(19, '7 Avenue de la Paix', 'Rennes', '35000', 'France', 'FR7630003000704455667788990', 1),
+(20, '11 Rue Victor Hugo', 'Nice', '06000', 'France', 'FR7630003000705566778899001', 3),
+(21, '12 Rue des Lilas', 'Paris', '75012', 'France', 'FR7630003000701234567890125', 1),
+(22, '45 Avenue des Champs', 'Lyon', '69002', 'France', 'FR7630003000709876543210987', 2),
+(23, '3 Impasse des Jardins', 'Marseille', '13008', 'France', 'FR7630003000705678901234567', 1),
+(24, '9 Boulevard Saint-Michel', 'Toulouse', '31000', 'France', 'FR7630003000702345678912345', 3),
+(25, '14 Rue de la République', 'Bordeaux', '33000', 'France', 'FR7630003000700987654321234', 2),
+(26, '22 Place Bellecour', 'Lille', '59000', 'France', 'FR7630003000701122334455667', 3),
+(27, '5 Rue Nationale', 'Nantes', '44000', 'France', 'FR7630003000702233445566778', 1),
+(28, '18 Rue des Fleurs', 'Strasbourg', '67000', 'France', 'FR7630003000703344556677889', 2),
+(29, '7 Avenue de la Paix', 'Rennes', '35000', 'France', 'FR7630003000704455667788990', 1),
+(30, '11 Rue Victor Hugo', 'Nice', '06000', 'France', 'FR7630003000705566778899001', 3);
 
 INSERT INTO Bibliotheques (nom_bibliotheque, adresse, ville, pays)
 VALUES
@@ -105,3 +105,12 @@ VALUES
 (39, 3, 'Bibliothécaire', 'FR7690123456789012345678901'),
 (44, 3, 'Agent de sécurité', 'FR7745678901234567890123456'),
 (45, 3, 'Technicien informatique', 'FR7756789012345678901234567');
+
+INSERT INTO Exemplaires (id_ouvrage, id_bibliotheque)
+VALUES
+  (1, 1), -- Exemplaire 1 du livre "Le seigneur des anneaux" dans la bibliothèque 1
+  (1, 1), -- Exemplaire 2 du même livre
+  (2, 1), -- Exemplaire 3 du livre "1984" dans la bibliothèque 1
+  (3, 1), -- Exemplaire 4 du livre "Harry Potter à l'école des sorciers" dans la bibliothèque 1
+  (4, 1), -- Exemplaire 5 du livre "La peste" dans la bibliothèque 1
+  (4, 1); -- Exemplaire 6 du même livre

@@ -131,6 +131,12 @@ CREATE TABLE IF NOT EXISTS Amendes (
   montant INTEGER NOT NULL CHECK (montant >= 0)
 );
 
+CREATE TABLE IF NOT EXISTS Amendes_Reglements(
+  id_amende_reglement INTEGER generated always as identity PRIMARY KEY,
+  id_penalite INTEGER NOT NULL REFERENCES Penalites,
+  date_reglement DATE not null
+);
+
 CREATE TABLE IF NOT EXISTS Banissements_Temporaires (
   id_penalite INTEGER PRIMARY KEY REFERENCES Penalites(id_penalite),
   date_debut DATE NOT NULL,
