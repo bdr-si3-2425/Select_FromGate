@@ -126,6 +126,13 @@ CREATE TABLE IF NOT EXISTS Prets (
   retard INTEGER NOT NULL
 );
 
+-- Table des réglements d'amendes
+CREATE TABLE IF NOT EXISTS Prets_Renouvellements(
+  id_renouvellement INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  id_pret INTEGER NOT NULL REFERENCES Prets,
+  date_renouvellement DATE NOT NULL
+);
+
 -- Table des interventions des intervenants
 CREATE TABLE IF NOT EXISTS Interventions (
   id_intervention INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -163,6 +170,13 @@ CREATE TABLE IF NOT EXISTS Penalites (
 CREATE TABLE IF NOT EXISTS Amendes (
   id_penalite INTEGER PRIMARY KEY REFERENCES Penalites,
   montant INTEGER NOT NULL
+);
+
+-- Table des réglements d'amendes
+CREATE TABLE IF NOT EXISTS Amendes_Reglements(
+  id_amende_reglement INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  id_penalite INTEGER NOT NULL REFERENCES Penalites,
+  date_reglement DATE NOT NULL
 );
 
 -- Table des bannissements temporaires

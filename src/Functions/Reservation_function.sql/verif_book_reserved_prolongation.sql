@@ -27,8 +27,6 @@ BEGIN
         RAISE EXCEPTION 'L''abonné(e) a déjà consommé ses 3 renouvellements sur ce prêt';
 	END IF;
 
-	
-
 RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;

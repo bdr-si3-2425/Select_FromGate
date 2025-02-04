@@ -6,7 +6,7 @@ BEGIN
     IF (NEW.date_debut IS NULL) THEN
         NEW.date_debut = CURRENT_DATE;
 	END IF;
-	
+
     -- Vérifier que l'emprunt dure bien 1 mois et corriger si besoin
     IF (NEW.date_fin != NEW.date_debut + INTERVAL '1 month' OR NEW.date_fin IS NULL) THEN
         NEW.date_fin := NEW.date_debut + INTERVAL '1 month';
@@ -21,7 +21,7 @@ BEGIN
     IF (NEW.retard IS NULL) THEN
         NEW.retard = 0;
 	END IF;
-	
+
     -- Vérifier si l'exemplaire n'est pas déjà emprunté sur la période demandée
     IF EXISTS (
         SELECT 1
