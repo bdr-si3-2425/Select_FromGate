@@ -12,3 +12,8 @@ CREATE TRIGGER verif_end_of_subsription
 	BEFORE DELETE ON Abonnes
 	FOR EACH ROW
 	EXECUTE FUNCTION verif_end_of_subsription_fn();
+
+CREATE TRIGGER maximum_participants_event
+    BEFORE INSERT ON Participants
+    FOR EACH ROW
+    EXECUTE FUNCTION maximum_participants_event();
