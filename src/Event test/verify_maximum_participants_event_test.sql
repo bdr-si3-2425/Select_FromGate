@@ -1,8 +1,8 @@
 -- Insertion d'une personne et d'une bibliothèque
 INSERT INTO Personnes (nom, prenom, email) 
-VALUES ('Dupont', 'Jean', 'jean.dupont@example.com'),
-       ('Martin', 'Alice', 'alice.martin@example.com'),
-       ('Durand', 'Bob', 'bob.durand@example.com');
+VALUES ('Dupont', 'Jean', 'jean.dupont@gmail.com'),
+       ('Martin', 'Alice', 'alice.martin@yahoo.fr'),
+       ('Durand', 'Bob', 'bob.durand@gmail.com');
 
 INSERT INTO Bibliotheques (nom_bibliotheque, adresse, ville, pays) 
 VALUES ('Bibliothèque centrale', '1 rue de la Culture', 'Paris', 'France');

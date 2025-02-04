@@ -13,7 +13,12 @@ CREATE TRIGGER verif_end_of_subsription
 	FOR EACH ROW
 	EXECUTE FUNCTION verif_end_of_subsription_fn();
 
-CREATE TRIGGER maximum_participants_event
+CREATE TRIGGER verify_maximum_participants_event
     BEFORE INSERT ON Participants
     FOR EACH ROW
-    EXECUTE FUNCTION maximum_participants_event();
+    EXECUTE FUNCTION verify_maximum_participants_event();
+
+CREATE TRIGGER decrement_number_participant
+    BEFORE DELETE ON Participants
+    FOR EACH ROW
+    EXECUTE FUNCTION decrement_number_participant();
