@@ -8,3 +8,5 @@ DROP ROLE personnel;
 DROP ROLE bibliothecaire;
 -- Suppression du role intervenant
 DROP ROLE intervenant;
+-- Suppression du role directeur
+DROP ROLE directeur
