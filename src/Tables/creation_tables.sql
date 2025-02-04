@@ -120,17 +120,17 @@ CREATE TABLE IF NOT EXISTS Prets (
   id_pret INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   id_exemplaire INTEGER NOT NULL REFERENCES Exemplaires,
   id_abonne INTEGER NOT NULL REFERENCES Abonnes,
-  date_debut DATE NOT NULL,
-  date_fin DATE NOT NULL,
-  compteur_renouvellement INTEGER NOT NULL,
-  retard INTEGER NOT NULL
+  date_debut DATE,
+  date_fin DATE,
+  retard INTEGER
 );
 
--- Table des réglements d'amendes
+-- Table des renouvellements
 CREATE TABLE IF NOT EXISTS Prets_Renouvellements(
   id_renouvellement INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   id_pret INTEGER NOT NULL REFERENCES Prets,
-  date_renouvellement DATE NOT NULL
+  date_renouvellement DATE,
+  date_fin DATE
 );
 
 -- Table des interventions des intervenants

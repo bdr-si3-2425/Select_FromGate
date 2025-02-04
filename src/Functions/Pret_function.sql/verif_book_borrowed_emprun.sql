@@ -13,35 +13,36 @@ BEGIN
 	END IF;
 
 	-- Vérifier le nombre de renouvellement est bien renseigné
-    IF (NEW.compteur_renouvellement IS NULL) THEN
-        NEW.compteur_renouvellement = 0;
-	END IF;
-
-	-- Vérifier le nombre de renouvellement est bien renseigné
     IF (NEW.retard IS NULL) THEN
         NEW.retard = 0;
 	END IF;
 
     -- Vérifier si l'exemplaire n'est pas déjà emprunté sur la période demandée
-    IF EXISTS (
+    IF (
+    EXISTS (
         SELECT 1
         FROM Prets
         WHERE id_exemplaire = NEW.id_exemplaire
-        AND NEW.date_debut <= date_fin
-        AND NEW.date_fin >= date_debut
-    ) THEN
-        RAISE EXCEPTION 'L''ouvrage est déjà emprunté sur cette période';
+          AND NEW.date_debut <= date_fin
+          AND NEW.date_fin >= date_debut
+    )
+    OR
+    EXISTS (
+        SELECT 1
+        FROM Prets AS p
+        JOIN (
+            SELECT id_pret, MAX(date_fin) AS last_date_fin
+            FROM Prets_Renouvellements
+            GROUP BY id_pret
+        ) AS pr ON pr.id_pret = p.id_pret
+        WHERE p.id_exemplaire = NEW.id_exemplaire
+          AND NEW.date_debut <= pr.last_date_fin
+          AND NEW.date_fin >= p.date_debut
+    	)
+	) THEN
+    	RAISE EXCEPTION 'L''ouvrage est déjà emprunté sur cette période';
 	END IF;
 
-	-- Vérifier si l'exemplaire n'est pas déjà reservé sur cette période
-	IF EXISTS (
-        SELECT 1
-        FROM Reservations
-        WHERE id_exemplaire = NEW.id_exemplaire
-        AND NEW.date_fin >= date_reservation
-    ) THEN
-        RAISE EXCEPTION 'L''ouvrage est reservé sur cette période';
-	END IF;
 
     -- Vérifier si l'abonné(e) n'a pas atteint son maximum de livres empruntés
     IF (
