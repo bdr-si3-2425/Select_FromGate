@@ -16,6 +16,18 @@ BEGIN
         NEW.retard = 0;
 	END IF;
 
+	-- Vérifier que l'examplaire est dans la bibliotheque de l'abonné(e)
+	IF NOT EXISTS (
+	    SELECT 1
+	    FROM Exemplaires AS e
+	    JOIN Abonnes AS a ON a.id_bibliotheque = e.id_bibliotheque
+	    WHERE e.id_exemplaire = NEW.id_exemplaire
+	    AND a.id_personne = NEW.id_abonne
+	) THEN 
+    	RAISE EXCEPTION 'L''ouvrage est présent dans une autre bibliotheque';
+	END IF;
+
+		
     -- Vérifier si l'exemplaire n'est pas déjà emprunté sur la période demandée
     IF (
     EXISTS (

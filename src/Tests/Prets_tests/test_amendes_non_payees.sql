@@ -5,8 +5,8 @@ DELETE FROM Amendes WHERE id_penalite = 1;
 DELETE FROM Penalites WHERE id_penalite = 1;
 
 -- Création du prêt
-INSERT INTO Prets (id_exemplaire, id_abonne)
-VALUES (3, 12);
+INSERT INTO Prets (id_exemplaire, id_abonne, id_bibliotheque)
+VALUES (3, 12, 1);
 
 -- Insertion d'une pénalité de type "Amende" pour abonné 12
 INSERT INTO Penalites (nature_infraction, id_pret, id_personne)
