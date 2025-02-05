@@ -1,6 +1,6 @@
-CREATE OR REPLACE FUNCTION init_user()
-RETURNS VOID AS $$ 
-DECLARE 
+CREATE OR REPLACE FUNCTION init_users()
+RETURNS VOID AS $$
+DECLARE
     rec RECORD;
     role_name TEXT;
     password TEXT;
@@ -37,8 +37,7 @@ BEGIN
             EXECUTE format('GRANT intervenant TO %I', rec.email);
         END IF;
     END LOOP;
-END 
+END
 $$ LANGUAGE plpgsql;
 
-Select init_user()
-
+SELECT init_users();

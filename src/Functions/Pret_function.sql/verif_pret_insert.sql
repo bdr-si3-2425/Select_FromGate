@@ -1,7 +1,6 @@
-CREATE OR REPLACE FUNCTION verif_book_borrowed_emprun_fn()
+CREATE OR REPLACE FUNCTION verif_pret_insert_fn()
 RETURNS TRIGGER AS $$
 BEGIN
-
 	-- Vérifier que la date de début existe et corriger si besoin
     IF (NEW.date_debut IS NULL) THEN
         NEW.date_debut = CURRENT_DATE;
@@ -20,6 +19,7 @@ BEGIN
     -- Vérifier si l'exemplaire n'est pas déjà emprunté sur la période demandée
     IF (
     EXISTS (
+<<<<<<< HEAD:src/Functions/Pret_function.sql/verif_book_borrowed_emprun.sql
         SELECT 1
         FROM Prets
         WHERE id_exemplaire = NEW.id_exemplaire
@@ -43,22 +43,60 @@ BEGIN
     	RAISE EXCEPTION 'L''ouvrage est déjà emprunté sur cette période';
 	END IF;
 
+=======
+            SELECT 1
+            FROM Prets
+            WHERE id_exemplaire = NEW.id_exemplaire
+            AND NEW.date_debut <= date_fin
+            AND NEW.date_fin >= date_debut
+        ) OR EXISTS (
+            SELECT 1
+            FROM Prets AS p
+            JOIN (
+                SELECT id_pret, MAX(date_fin) AS last_date_fin
+                FROM Prets_Renouvellements
+                GROUP BY id_pret
+            ) AS pr ON pr.id_pret = p.id_pret
+            WHERE p.id_exemplaire = NEW.id_exemplaire
+            AND NEW.date_debut <= pr.last_date_fin
+            AND NEW.date_fin >= p.date_debut
+        )
+    ) THEN
+    	RAISE EXCEPTION 'L''ouvrage est déjà emprunté sur cette période';
+	END IF;
+
+
+    -- Vérifier si l'exemplaire n'est pas déjà réservé sur la période demandée
+    IF (
+    EXISTS (
+            SELECT 1
+            FROM Reservations AS r
+            WHERE r.id_exemplaire = NEW.id_exemplaire
+            AND NEW.date_debut <= r.date_expiration
+            AND NEW.date_fin >= r.date_reservation
+        )
+    ) THEN
+    	RAISE EXCEPTION 'L''ouvrage est déjà réservé sur cette période';
+	END IF;
+>>>>>>> 9ad48cd (Cleaned & tested everything except roles/user & views):src/Functions/Pret_function.sql/verif_pret_insert.sql
+
 
     -- Vérifier si l'abonné(e) n'a pas atteint son maximum de livres empruntés
     IF (
-        (SELECT abnmt.nombre_livres
-         FROM Abonnes AS abe
-         JOIN Abonnements AS abnmt ON abe.id_abonnement = abnmt.id_abonnement
-         WHERE abe.id_personne = NEW.id_abonne
-        ) <=
-        (SELECT COUNT(*)
-         FROM Prets AS p
-         WHERE p.id_abonne = NEW.id_abonne
-         AND p.date_fin >= CURRENT_DATE -- Livres non encore rendus
+        (
+            SELECT abnmt.nombre_livres
+            FROM Abonnes AS abe
+            JOIN Abonnements AS abnmt ON abe.id_abonnement = abnmt.id_abonnement
+            WHERE abe.id_personne = NEW.id_abonne
+        ) <= (
+            SELECT COUNT(*)
+            FROM Prets AS p
+            WHERE p.id_abonne = NEW.id_abonne
+            AND p.date_fin >= CURRENT_DATE -- Livres non encore rendus
         )
     ) THEN
         RAISE EXCEPTION 'L''abonné(e) a déjà atteint le maximum de livres empruntables permis par son abonnement';
-END IF;
+    END IF;
 
     -- Vérifier que l'abonné(e) n'est pas interdit d'emprunt (Banissement temporaire)
     IF EXISTS (
@@ -70,7 +108,7 @@ END IF;
         AND bt.date_fin >= CURRENT_DATE
     ) THEN
         RAISE EXCEPTION 'L''abonné(e) est banni temporairement';
-END IF;
+    END IF;
 
     -- Vérifier que l'abonné(e) n'est pas interdit d'emprunt (Banissement définitif)
     IF EXISTS (
@@ -81,7 +119,7 @@ END IF;
         AND b.date_debut <= CURRENT_DATE
     ) THEN
         RAISE EXCEPTION 'L''abonné(e) est banni définitivement';
-END IF;
+    END IF;
 
 	-- Vérifie que l'abonné(e) n'ait pas d'amende impayée :
 	IF EXISTS (
@@ -89,13 +127,10 @@ END IF;
 	    FROM Penalites p
 	    JOIN Amendes am ON am.id_penalite = p.id_penalite
 	    WHERE p.id_personne = NEW.id_abonne
-	      AND am.id_penalite NOT IN (SELECT id_penalite FROM Amendes_Reglements)
+	    AND am.id_penalite NOT IN (SELECT id_penalite FROM Amendes_Reglements)
 	) THEN
 	    RAISE EXCEPTION 'L''abonné(e) n''a pas encore réglé ses amendes';
-END IF;
-
-
+    END IF;
 RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
-

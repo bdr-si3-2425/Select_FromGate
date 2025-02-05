@@ -42,7 +42,6 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-
 -- Vérifie la validité de la réservation
 CREATE OR REPLACE FUNCTION _verif_reservation_validity(rec Reservations)
 RETURNS VOID AS $$
@@ -64,9 +63,8 @@ END;
 $$ LANGUAGE plpgsql;
 
 
-
 --------------------------------------------------------------------------------
--- FONCTION PRINCIPALE DE VÉRIFICATION (déclencheur)
+-- Main Function :
 --------------------------------------------------------------------------------
 
 CREATE OR REPLACE FUNCTION verif_reservation_insert_fn()

@@ -4,8 +4,10 @@ RETURNS TRIGGER AS $$
 DECLARE
     username TEXT;
 BEGIN
+
     username := NEW.email;
     EXECUTE format('CREATE USER %I LOGIN PASSWORD %L', username, 'MotDePasseParDefaut');
     RETURN NEW;
+
 END;
 $$ LANGUAGE plpgsql;
