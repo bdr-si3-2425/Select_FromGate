@@ -37,7 +37,7 @@ CREATE TRIGGER trigger_retirer_role_intervenant
 
 -- Personnels :
 CREATE TRIGGER trigger_retirer_role_abonne
-    AFTER DELETE ON Personnel
+    AFTER DELETE ON Personnels
     FOR EACH ROW
     EXECUTE FUNCTION retirer_role_trigger();
 
