@@ -1,7 +1,7 @@
 -- Insertion de personnes
 INSERT INTO Personnes (nom, prenom, email) 
 VALUES 
-('Dupont', 'Jean', 'jean.dupont@example.com');
+('Dupont', 'Jean', 'jean.dupont@gmail.com');
 
 INSERT INTO Bibliotheques (nom_bibliotheque, adresse, ville, pays)
 VALUES ('André Malraux', '6 rue des Colombes', 'Marseille', 'France');

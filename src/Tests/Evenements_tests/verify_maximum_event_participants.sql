@@ -1,10 +1,10 @@
 -- Insertion de personnes
 INSERT INTO Personnes (nom, prenom, email) 
 VALUES 
-('Dupont', 'Jean', 'jean.dupont@example.com'),
-('Martin', 'Claire', 'claire.martin@example.com'),
-('Durand', 'Paul', 'paul.durand@example.com'),
-('Morel', 'Sophie', 'sophie.morel@example.com');
+('Dupont', 'Jean', 'jean.dupont@gmail.com'),
+('Martin', 'Claire', 'claire.martin@gmail.com'),
+('Durand', 'Paul', 'paul.durand@gmail.com'),
+('Morel', 'Sophie', 'sophie.morel@gmail.com');
 
 -- Création d'un event avec 3 participants
 INSERT INTO Evenements (id_personne, id_bibliotheque, theme, nom, date_evenement, nb_max_personne, nb_abonne)
