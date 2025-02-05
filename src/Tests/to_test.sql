@@ -123,8 +123,8 @@ CREATE TABLE IF NOT EXISTS Reservations (
   id_reservation INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   id_exemplaire INTEGER NOT NULL REFERENCES Exemplaires,
   id_abonne INTEGER NOT NULL REFERENCES Abonnes,
-  date_reservation DATE NOT NULL,
-  date_expiration DATE NOT NULL
+  date_reservation DATE,
+  date_expiration DATE
 );
 
 -- Table des prêts d'ouvrages
@@ -132,17 +132,18 @@ CREATE TABLE IF NOT EXISTS Prets (
   id_pret INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   id_exemplaire INTEGER NOT NULL REFERENCES Exemplaires,
   id_abonne INTEGER NOT NULL REFERENCES Abonnes,
-  date_debut DATE NOT NULL,
-  date_fin DATE NOT NULL,
-  retard INTEGER NOT NULL
+  id_bibliotheque INTEGER NOT NULL REFERENCES Bibliotheques,
+  date_debut DATE,
+  date_fin DATE,
+  retard INTEGER
 );
 
 -- Table des renouvellements
 CREATE TABLE IF NOT EXISTS Prets_Renouvellements(
   id_renouvellement INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   id_pret INTEGER NOT NULL REFERENCES Prets,
-  date_renouvellement DATE,
-  date_fin DATE
+  date_renouvellement DATE NOT NULL,
+  date_fin DATE NOT NULL
 );
 
 -- Table des interventions des intervenants
@@ -157,6 +158,7 @@ CREATE TABLE IF NOT EXISTS Transferts (
   id_exemplaire INTEGER NOT NULL REFERENCES Exemplaires,
   id_bibliotheque_depart INTEGER NOT NULL REFERENCES Bibliotheques,
   id_bibliotheque_arrivee INTEGER NOT NULL REFERENCES Bibliotheques,
+  id_personne INTEGER NOT NULL REFERENCES Personnes,
   date_demande DATE NOT NULL,
   date_arrivee DATE NOT NULL
 );
@@ -218,19 +220,31 @@ CREATE TABLE IF NOT EXISTS Banissements (
 --------------------------------------------------------------------------------
 -- ABONNEMENTS :
 
--- Vérifie la possibilité de résiliation de l'abonnement
-CREATE OR REPLACE FUNCTION _verif_pret_before_subsription_delete_fn(abonnement Abonnements)
-RETURNS VOID AS $$
+CREATE OR REPLACE FUNCTION verif_end_of_subsription_fn()
+RETURNS TRIGGER AS $$
 BEGIN
-	-- Vérifie que l'abonné(e) n'as pas de prêts en cours
-    IF EXISTS (
-		SELECT 1
-		FROM Prets AS pret
-		WHERE abonnement.id_personne = pret.id_abonne
-		AND (pret.date_fin + INTERVAL '1 day' * pret.retard) > CURRENT_DATE
+
+	IF EXISTS (
+        SELECT 1
+        FROM Prets
+        WHERE id_abonne = OLD.id_personne
+          AND date_fin > CURRENT_DATE
+    ) THEN
+        RAISE EXCEPTION 'L''abonné(e) a un prêt en cours, il ne peut donc pas résilier son abonnement';
+   END IF;
+	-- Pareil avec les renouvellements
+	IF EXISTS (
+	    SELECT 1
+	    FROM Prets_Renouvellements pr
+	    JOIN Prets p ON pr.id_pret = p.id_pret
+	    WHERE p.id_abonne = NEW.id_abonne
+	    AND NEW.date_debut <= pr.date_fin
+	    AND NEW.date_fin >= pr.date_renouvellement
 	) THEN
-		RAISE EXCEPTION 'L''abonné(e) a un prêt en cours, il ne peut donc pas résilier son abonnement';
+    	RAISE EXCEPTION 'L''abonné(e) a déjà un prêt renouvelé dans la période demandée';
 	END IF;
+	
+RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
@@ -240,13 +254,15 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION on_subsription_delete_fn()
 RETURNS TRIGGER AS $$
 BEGIN
-    -- Appel des fonctions de validation en leur passant la ligne OLD
-	PERFORM _verif_pret_before_subsription_delete_fn(OLD)
-
-	-- On retire les réservation en cours/futures de l'abonné(e)
+    -- On retire les réservation en cours/futures de l'abonné(e)
 	DELETE FROM Reservations
 	WHERE id_abonne = OLD.id_personne
 	AND date_expiration >= CURRENT_DATE;
+
+	-- On retire les transferts de l'abonné(e)
+	DELETE FROM Transferts
+	WHERE id_personne = OLD.id_personne
+  	AND date_arrivee >= CURRENT_DATE;
 RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -256,9 +272,10 @@ $$ LANGUAGE plpgsql;
 --------------------------------------------------------------------------------
 -- PRETS :
 
-CREATE OR REPLACE FUNCTION verif_pret_insert_fn()
+CREATE OR REPLACE FUNCTION verif_book_borrowed_emprun_fn()
 RETURNS TRIGGER AS $$
 BEGIN
+
 	-- Vérifier que la date de début existe et corriger si besoin
     IF (NEW.date_debut IS NULL) THEN
         NEW.date_debut = CURRENT_DATE;
@@ -274,61 +291,60 @@ BEGIN
         NEW.retard = 0;
 	END IF;
 
+	-- Vérifier que l'examplaire est dans la bibliotheque de l'abonné(e)
+	IF NOT EXISTS (
+	    SELECT 1
+	    FROM Exemplaires AS e
+	    JOIN Abonnes AS a ON a.id_bibliotheque = e.id_bibliotheque
+	    WHERE e.id_exemplaire = NEW.id_exemplaire
+	    AND a.id_personne = NEW.id_abonne
+	) THEN 
+    	RAISE EXCEPTION 'L''ouvrage est présent dans une autre bibliotheque';
+	END IF;
+
+		
     -- Vérifier si l'exemplaire n'est pas déjà emprunté sur la période demandée
     IF (
     EXISTS (
-            SELECT 1
-            FROM Prets
-            WHERE id_exemplaire = NEW.id_exemplaire
-            AND NEW.date_debut <= date_fin
-            AND NEW.date_fin >= date_debut
-        ) OR EXISTS (
-            SELECT 1
-            FROM Prets AS p
-            JOIN (
-                SELECT id_pret, MAX(date_fin) AS last_date_fin
-                FROM Prets_Renouvellements
-                GROUP BY id_pret
-            ) AS pr ON pr.id_pret = p.id_pret
-            WHERE p.id_exemplaire = NEW.id_exemplaire
-            AND NEW.date_debut <= pr.last_date_fin
-            AND NEW.date_fin >= p.date_debut
-        )
-    ) THEN
-    	RAISE EXCEPTION 'L''ouvrage est déjà emprunté sur cette période';
-	END IF;
-
-
-    -- Vérifier si l'exemplaire n'est pas déjà réservé sur la période demandée
-    IF (
+        SELECT 1
+        FROM Prets
+        WHERE id_exemplaire = NEW.id_exemplaire
+          AND NEW.date_debut <= date_fin
+          AND NEW.date_fin >= date_debut
+    )
+    OR
     EXISTS (
-            SELECT 1
-            FROM Reservations AS r
-            WHERE r.id_exemplaire = NEW.id_exemplaire
-            AND NEW.date_debut <= r.date_expiration
-            AND NEW.date_fin >= r.date_reservation
-        )
-    ) THEN
-    	RAISE EXCEPTION 'L''ouvrage est déjà réservé sur cette période';
+        SELECT 1
+        FROM Prets AS p
+        JOIN (
+            SELECT id_pret, MAX(date_fin) AS last_date_fin
+            FROM Prets_Renouvellements
+            GROUP BY id_pret
+        ) AS pr ON pr.id_pret = p.id_pret
+        WHERE p.id_exemplaire = NEW.id_exemplaire
+          AND NEW.date_debut <= pr.last_date_fin
+          AND NEW.date_fin >= p.date_debut
+    	)
+	) THEN
+    	RAISE EXCEPTION 'L''ouvrage est déjà emprunté sur cette période';
 	END IF;
 
 
     -- Vérifier si l'abonné(e) n'a pas atteint son maximum de livres empruntés
     IF (
-        (
-            SELECT abnmt.nombre_livres
-            FROM Abonnes AS abe
-            JOIN Abonnements AS abnmt ON abe.id_abonnement = abnmt.id_abonnement
-            WHERE abe.id_personne = NEW.id_abonne
-        ) <= (
-            SELECT COUNT(*)
-            FROM Prets AS p
-            WHERE p.id_abonne = NEW.id_abonne
-            AND p.date_fin >= CURRENT_DATE -- Livres non encore rendus
+        (SELECT abnmt.nombre_livres
+         FROM Abonnes AS abe
+         JOIN Abonnements AS abnmt ON abe.id_abonnement = abnmt.id_abonnement
+         WHERE abe.id_personne = NEW.id_abonne
+        ) <=
+        (SELECT COUNT(*)
+         FROM Prets AS p
+         WHERE p.id_abonne = NEW.id_abonne
+         AND p.date_fin >= CURRENT_DATE -- Livres non encore rendus
         )
     ) THEN
         RAISE EXCEPTION 'L''abonné(e) a déjà atteint le maximum de livres empruntables permis par son abonnement';
-    END IF;
+END IF;
 
     -- Vérifier que l'abonné(e) n'est pas interdit d'emprunt (Banissement temporaire)
     IF EXISTS (
@@ -340,7 +356,7 @@ BEGIN
         AND bt.date_fin >= CURRENT_DATE
     ) THEN
         RAISE EXCEPTION 'L''abonné(e) est banni temporairement';
-    END IF;
+END IF;
 
     -- Vérifier que l'abonné(e) n'est pas interdit d'emprunt (Banissement définitif)
     IF EXISTS (
@@ -351,7 +367,7 @@ BEGIN
         AND b.date_debut <= CURRENT_DATE
     ) THEN
         RAISE EXCEPTION 'L''abonné(e) est banni définitivement';
-    END IF;
+END IF;
 
 	-- Vérifie que l'abonné(e) n'ait pas d'amende impayée :
 	IF EXISTS (
@@ -359,10 +375,10 @@ BEGIN
 	    FROM Penalites p
 	    JOIN Amendes am ON am.id_penalite = p.id_penalite
 	    WHERE p.id_personne = NEW.id_abonne
-	    AND am.id_penalite NOT IN (SELECT id_penalite FROM Amendes_Reglements)
+	      AND am.id_penalite NOT IN (SELECT id_penalite FROM Amendes_Reglements)
 	) THEN
 	    RAISE EXCEPTION 'L''abonné(e) n''a pas encore réglé ses amendes';
-    END IF;
+END IF;
 RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -520,6 +536,11 @@ CREATE TRIGGER verif_end_of_subsription
 	BEFORE DELETE ON Abonnes
 	FOR EACH ROW
 	EXECUTE FUNCTION on_subsription_delete_fn();
+
+CREATE TRIGGER verif_end_of_subsription_other
+	BEFORE DELETE ON Abonnes
+	FOR EACH ROW
+	EXECUTE FUNCTION verif_end_of_subsription_fn();
 
 
 --------------------------------------------------------------------------------
