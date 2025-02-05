@@ -17,7 +17,7 @@ GRANT SELECT ON Vue_Bibliotheques_Bibliothecaires TO bibliothecaire;
 GRANT SELECT ON Vue_Reservations_Bibliothecaires TO bibliothecaire;
 GRANT SELECT ON Evenements, Collections TO bibliothecaire;
 GRANT SELECT ON Vue_Prets_Bibliothecaires TO bibliothecaire;
-GRANT SELECT, INSERT, UPDATE, DELETE ON Transferts, Clients, Abonnes, Ouvrages, Exemplaires, Codes_Postaux TO bibliothecaire;
+GRANT SELECT, INSERT, UPDATE, DELETE ON Intervenants, Personnes, Transferts, Clients, Abonnes, Ouvrages, Exemplaires, Codes_Postaux TO bibliothecaire;
 GRANT SELECT, UPDATE ON Abonnes TO bibliothecaire;
 GRANT SELECT ON Penalites, Amendes, Banissements, Banissements_Temporaires TO bibliothecaire;
 GRANT UPDATE ON Reservations TO bibliothecaire;
