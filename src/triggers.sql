@@ -75,3 +75,17 @@ CREATE TRIGGER verif_reservation_insert
     BEFORE INSERT ON Reservations
     FOR EACH ROW
     EXECUTE FUNCTION verif_reservation_insert_fn();
+
+--------------------------------------------------------------------------------
+-- EVENEMENTS
+--------------------------------------------------------------------------------
+
+CREATE TRIGGER verify_maximum_participants_event
+    BEFORE INSERT ON Participants
+    FOR EACH ROW
+    EXECUTE FUNCTION verify_maximum_participants_event();
+
+CREATE TRIGGER decrement_number_participant
+    BEFORE INSERT ON Participants
+    FOR EACH ROW
+    EXECUTE FUNCTION decrement_number_participant();
