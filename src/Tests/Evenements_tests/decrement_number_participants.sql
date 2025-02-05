@@ -3,8 +3,8 @@ INSERT INTO Personnes (nom, prenom, email)
 VALUES 
 ('Dupont', 'Jean', 'jean.dupont@gmail.com');
 
-INSERT INTO Bibliotheques (nom_bibliotheque, adresse, ville, pays)
-VALUES ('André Malraux', '6 rue des Colombes', 'Marseille', 'France');
+INSERT INTO Bibliotheques (nom_bibliotheque, adresse, code_postal)
+VALUES ('André Malraux', '6 rue des Colombes', '13008');
 
 -- Création d'un event
 INSERT INTO Evenements (id_personne, id_bibliotheque, theme, nom, date_evenement, nb_max_personne, nb_abonne)

@@ -71,7 +71,7 @@ WHERE id_reservation = 1;
 
 -- Test 27: Ajouter la même ligne dans la table Reservations après suppression
 INSERT INTO Reservations (id_exemplaire, id_abonne, date_reservation, date_expiration)
-VALUES (1, 1, '2025-01-01', '2025-04-01');
+VALUES (1, 1, '2025-02-05', '2025-03-01');
 
 -- Test 28: Modifier une ligne dans la table Prets
 UPDATE Prets
