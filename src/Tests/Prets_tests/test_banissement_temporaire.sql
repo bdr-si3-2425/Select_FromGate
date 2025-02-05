@@ -3,6 +3,10 @@ DELETE FROM Prets WHERE id_abonne = 12;
 DELETE FROM Banissements_Temporaires WHERE id_penalite = 1;
 DELETE FROM Penalites WHERE id_penalite = 1;
 
+-- Création du prêt
+INSERT INTO Prets (id_exemplaire, id_abonne)
+VALUES (3, 12);
+
 -- Insertion d'une pénalité de type "Retard" pour abonné 12
 INSERT INTO Penalites (nature_infraction, id_pret, id_personne)
 VALUES ('Retard', 1, 12);

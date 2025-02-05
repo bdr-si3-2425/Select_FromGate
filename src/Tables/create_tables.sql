@@ -121,17 +121,17 @@ CREATE TABLE IF NOT EXISTS Prets (
   id_exemplaire INTEGER NOT NULL REFERENCES Exemplaires,
   id_abonne INTEGER NOT NULL REFERENCES Abonnes,
   id_bibliotheque INTEGER NOT NULL REFERENCES Bibliotheques,
-  date_debut DATE,
-  date_fin DATE,
-  retard INTEGER
+  date_debut DATE NOT NULL,
+  date_fin DATE NOT NULL,
+  retard INTEGER NOT NULL
 );
 
 -- Table des renouvellements
 CREATE TABLE IF NOT EXISTS Prets_Renouvellements(
   id_renouvellement INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   id_pret INTEGER NOT NULL REFERENCES Prets,
-  date_renouvellement DATE,
-  date_fin DATE
+  date_renouvellement DATE NOT NULL,
+  date_fin DATE NOT NULL
 );
 
 -- Table des interventions des intervenants

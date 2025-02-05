@@ -6,9 +6,9 @@ GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO directeur;
 GRANT ALL ON ALL FUNCTIONS IN SCHEMA public TO directeur;
 
 -- Attribution des privlièges aux abonnes
-GRANT SELECT ON Abonnes_Exemplaires TO abonne;
+GRANT SELECT ON Exemplaires TO abonne;
 GRANT SELECT ON Evenements TO abonne;
-GRANT SELECT, UPDATE Reservations abonne;
+GRANT SELECT, UPDATE ON Reservations TO abonne;
 GRANT INSERT ON Participants TO client;
 GRANT SELECT ON Penalites_Abonnes TO abonne;
 
@@ -34,5 +34,3 @@ GRANT INSERT ON Participants TO client;
 
 -- Attribution des privilèges aux intervenants
 GRANT SELECT ON Evenements TO intervenant;
-
-

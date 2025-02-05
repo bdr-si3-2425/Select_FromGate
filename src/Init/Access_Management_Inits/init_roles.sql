@@ -1,5 +1,5 @@
 CREATE OR REPLACE FUNCTION init_roles()
-RETURNS VOID AS $$ 
+RETURNS VOID AS $$
 BEGIN
     IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'directeur') THEN
         CREATE ROLE directeur;
@@ -22,7 +22,7 @@ BEGIN
     IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'intervenant') THEN
         CREATE ROLE intervenant;
     END IF;
-END 
+END
 $$ LANGUAGE plpgsql;
 
 Select init_roles();
