@@ -1,7 +1,3 @@
-
-
-
-
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 -- Tables :
@@ -20,7 +16,7 @@ CREATE TABLE IF NOT EXISTS Personnes (
 
 -- Table des clients
 CREATE TABLE IF NOT EXISTS Clients (
-  id_personne INTEGER PRIMARY KEY REFERENCES Personnes
+  id_personne INTEGER PRIMARY KEY REFERENCES Personnes ON DELETE CASCADE
 );
 
 -- Table des abonnements
@@ -39,11 +35,11 @@ CREATE TABLE IF NOT EXISTS Codes_Postaux (
 
 -- Table des abonnés
 CREATE TABLE IF NOT EXISTS Abonnes (
-  id_personne INTEGER PRIMARY KEY REFERENCES Personnes,
+  id_personne INTEGER PRIMARY KEY REFERENCES Personnes ON DELETE CASCADE,
   adresse VARCHAR NOT NULL,
-  code_postal INTEGER NOT NULL REFERENCES Codes_Postaux,
+  code_postal INTEGER NOT NULL REFERENCES Codes_Postaux ON DELETE CASCADE,
   rib VARCHAR NOT NULL,
-  id_abonnement INTEGER NOT NULL REFERENCES Abonnements
+  id_abonnement INTEGER NOT NULL REFERENCES Abonnements ON DELETE CASCADE
 );
 
 -- Table des bibliothèques
@@ -51,7 +47,7 @@ CREATE TABLE IF NOT EXISTS Bibliotheques (
   id_bibliotheque INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   nom_bibliotheque VARCHAR NOT NULL,
   adresse VARCHAR NOT NULL,
-  code_postal INTEGER NOT NULL REFERENCES Codes_Postaux
+  code_postal INTEGER NOT NULL REFERENCES Codes_Postaux ON DELETE CASCADE
 );
 
 -- Table des métiers
@@ -62,22 +58,22 @@ CREATE TABLE IF NOT EXISTS Metiers (
 
 -- Table du personnel
 CREATE TABLE IF NOT EXISTS Personnels (
-  id_personne INTEGER PRIMARY KEY REFERENCES Personnes,
-  id_bibliotheque INTEGER NOT NULL REFERENCES Bibliotheques,
-  id_metier INTEGER NOT NULL REFERENCES Metiers,
+  id_personne INTEGER PRIMARY KEY REFERENCES Personnes ON DELETE CASCADE,
+  id_bibliotheque INTEGER NOT NULL REFERENCES Bibliotheques ON DELETE CASCADE,
+  id_metier INTEGER NOT NULL REFERENCES Metiers ON DELETE CASCADE,
   iban VARCHAR NOT NULL
 );
 
 -- Table des intervenants
 CREATE TABLE IF NOT EXISTS Intervenants (
-  id_personne INTEGER PRIMARY KEY REFERENCES Personnes
+  id_personne INTEGER PRIMARY KEY REFERENCES Personnes ON DELETE CASCADE
 );
 
 -- Table des événements
 CREATE TABLE IF NOT EXISTS Evenements (
   id_evenement INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-  id_personne INTEGER NOT NULL REFERENCES Personnes,  -- Organisateur
-  id_bibliotheque INTEGER NOT NULL REFERENCES Bibliotheques,
+  id_personne INTEGER NOT NULL REFERENCES Personnes ON DELETE CASCADE,  -- Organisateur
+  id_bibliotheque INTEGER NOT NULL REFERENCES Bibliotheques ON DELETE CASCADE,
   theme VARCHAR NOT NULL,
   nom VARCHAR NOT NULL,
   date_evenement DATE NOT NULL,
@@ -99,7 +95,7 @@ CREATE TABLE IF NOT EXISTS Ouvrages (
   annee INTEGER NOT NULL,
   nb_pages INTEGER NOT NULL,
   edition VARCHAR NOT NULL,
-  id_collection INTEGER NOT NULL REFERENCES Collections,
+  id_collection INTEGER NOT NULL REFERENCES Collections ON DELETE CASCADE,
   resume TEXT NOT NULL,
   prix INTEGER NOT NULL
 );
@@ -107,22 +103,22 @@ CREATE TABLE IF NOT EXISTS Ouvrages (
 -- Table des exemplaires
 CREATE TABLE IF NOT EXISTS Exemplaires (
   id_exemplaire INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-  id_ouvrage INTEGER NOT NULL REFERENCES Ouvrages,
-  id_bibliotheque INTEGER NOT NULL REFERENCES Bibliotheques
+  id_ouvrage INTEGER NOT NULL REFERENCES Ouvrages ON DELETE CASCADE,
+  id_bibliotheque INTEGER NOT NULL REFERENCES Bibliotheques ON DELETE CASCADE
 );
 
 -- Table des participants aux événements
 CREATE TABLE IF NOT EXISTS Participants (
   id_participation INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-  id_evenement INTEGER NOT NULL REFERENCES Evenements,
-  id_personne INTEGER NOT NULL REFERENCES Personnes
+  id_evenement INTEGER NOT NULL REFERENCES Evenements ON DELETE CASCADE,
+  id_personne INTEGER NOT NULL REFERENCES Personnes ON DELETE CASCADE
 );
 
 -- Table des réservations d'ouvrages
 CREATE TABLE IF NOT EXISTS Reservations (
   id_reservation INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-  id_exemplaire INTEGER NOT NULL REFERENCES Exemplaires,
-  id_abonne INTEGER NOT NULL REFERENCES Abonnes,
+  id_exemplaire INTEGER NOT NULL REFERENCES Exemplaires ON DELETE CASCADE,
+  id_abonne INTEGER NOT NULL REFERENCES Abonnes ON DELETE CASCADE,
   date_reservation DATE NOT NULL,
   date_expiration DATE NOT NULL
 );
@@ -130,8 +126,8 @@ CREATE TABLE IF NOT EXISTS Reservations (
 -- Table des prêts d'ouvrages
 CREATE TABLE IF NOT EXISTS Prets (
   id_pret INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-  id_exemplaire INTEGER NOT NULL REFERENCES Exemplaires,
-  id_abonne INTEGER NOT NULL REFERENCES Abonnes,
+  id_exemplaire INTEGER NOT NULL REFERENCES Exemplaires ON DELETE CASCADE,
+  id_abonne INTEGER NOT NULL REFERENCES Abonnes ON DELETE CASCADE,
   date_debut DATE NOT NULL,
   date_fin DATE NOT NULL,
   retard INTEGER NOT NULL
@@ -140,23 +136,23 @@ CREATE TABLE IF NOT EXISTS Prets (
 -- Table des renouvellements
 CREATE TABLE IF NOT EXISTS Prets_Renouvellements(
   id_renouvellement INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-  id_pret INTEGER NOT NULL REFERENCES Prets,
-  date_renouvellement DATE,
-  date_fin DATE
+  id_pret INTEGER NOT NULL REFERENCES Prets ON DELETE CASCADE,
+  date_renouvellement DATE NOT NULL,
+  date_fin DATE NOT NULL
 );
 
 -- Table des interventions des intervenants
 CREATE TABLE IF NOT EXISTS Interventions (
   id_intervention INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-  id_personne INTEGER NOT NULL REFERENCES Intervenants
+  id_personne INTEGER NOT NULL REFERENCES Intervenants ON DELETE CASCADE
 );
 
 -- Table des transferts d'exemplaires entre bibliothèques
 CREATE TABLE IF NOT EXISTS Transferts (
   id_transfert INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-  id_exemplaire INTEGER NOT NULL REFERENCES Exemplaires,
-  id_bibliotheque_depart INTEGER NOT NULL REFERENCES Bibliotheques,
-  id_bibliotheque_arrivee INTEGER NOT NULL REFERENCES Bibliotheques,
+  id_exemplaire INTEGER NOT NULL REFERENCES Exemplaires ON DELETE CASCADE,
+  id_bibliotheque_depart INTEGER NOT NULL REFERENCES Bibliotheques ON DELETE CASCADE,
+  id_bibliotheque_arrivee INTEGER NOT NULL REFERENCES Bibliotheques ON DELETE CASCADE,
   date_demande DATE NOT NULL,
   date_arrivee DATE NOT NULL
 );
@@ -164,7 +160,7 @@ CREATE TABLE IF NOT EXISTS Transferts (
 -- Table des achats d'exemplaires
 CREATE TABLE IF NOT EXISTS Achats (
   id_achat INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-  id_exemplaire INTEGER NOT NULL REFERENCES Exemplaires,
+  id_exemplaire INTEGER NOT NULL REFERENCES Exemplaires ON DELETE CASCADE,
   prix INTEGER NOT NULL,
   date_achat DATE NOT NULL,
   fournisseur VARCHAR NOT NULL
@@ -174,38 +170,35 @@ CREATE TABLE IF NOT EXISTS Achats (
 CREATE TABLE IF NOT EXISTS Penalites (
   id_penalite INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   nature_infraction VARCHAR NOT NULL,
-  id_pret INTEGER NOT NULL REFERENCES Prets,
-  id_personne INTEGER NOT NULL REFERENCES Personnes
+  id_pret INTEGER NOT NULL REFERENCES Prets ON DELETE CASCADE,
+  id_personne INTEGER NOT NULL REFERENCES Personnes ON DELETE CASCADE
 );
 
 -- Table des amendes
 CREATE TABLE IF NOT EXISTS Amendes (
-  id_penalite INTEGER PRIMARY KEY REFERENCES Penalites,
+  id_penalite INTEGER PRIMARY KEY REFERENCES Penalites ON DELETE CASCADE,
   montant INTEGER NOT NULL
 );
 
 -- Table des réglements d'amendes
 CREATE TABLE IF NOT EXISTS Amendes_Reglements(
   id_amende_reglement INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-  id_penalite INTEGER NOT NULL REFERENCES Penalites,
+  id_penalite INTEGER NOT NULL REFERENCES Penalites ON DELETE CASCADE,
   date_reglement DATE NOT NULL
 );
 
 -- Table des bannissements temporaires
 CREATE TABLE IF NOT EXISTS Banissements_Temporaires (
-  id_penalite INTEGER PRIMARY KEY REFERENCES Penalites,
+  id_penalite INTEGER PRIMARY KEY REFERENCES Penalites ON DELETE CASCADE,
   date_debut DATE NOT NULL,
   date_fin DATE NOT NULL
 );
 
 -- Table des bannissements permanents
 CREATE TABLE IF NOT EXISTS Banissements (
-  id_penalite INTEGER PRIMARY KEY REFERENCES Penalites,
+  id_penalite INTEGER PRIMARY KEY REFERENCES Penalites ON DELETE CASCADE,
   date_debut DATE NOT NULL
 );
-
-
-
 
 
 -------------------------------------------------------------------------------
@@ -546,12 +539,56 @@ CREATE TRIGGER verif_reservation_insert
 
 
 
+CREATE VIEW Abonnes_Exemplaires AS
+SELECT e.id_exemplaire, e.id_ouvrage, e.id_bibliotheque
+FROM Exemplaires e
+JOIN Bibliotheques b ON e.id_bibliotheque = b.id_bibliotheque
+JOIN Abonnes a ON a.code_postal = b.code_postal;
 
---------------------------------------------------------------------------------
---------------------------------------------------------------------------------
--- Triggers :
---------------------------------------------------------------------------------
---------------------------------------------------------------------------------
+CREATE VIEW Vue_Bibliotheques_Bibliothecaires AS
+SELECT DISTINCT b.*
+FROM Bibliotheques b
+JOIN Personnels p ON b.id_bibliotheque = p.id_bibliotheque;
+
+CREATE OR REPLACE VIEW Penalites_Abonnes AS
+SELECT p.*
+FROM Penalites p
+WHERE p.id_personne = (SELECT id_personne FROM Personnes where email = CURRENT_USER);
+
+CREATE OR REPLACE VIEW Vue_Prets_Bibliothecaires AS
+SELECT p.*
+FROM Prets p
+JOIN Exemplaires e ON p.id_exemplaire = e.id_exemplaire
+JOIN Bibliotheques b ON e.id_bibliotheque = b.id_bibliotheque
+JOIN Personnels per ON b.id_bibliotheque = per.id_bibliotheque
+WHERE per.id_personne = (Select id_personne FROM Personnes where email = CURRENT_USER);
+
+CREATE VIEW Vue_Reservations_Bibliothecaires AS
+SELECT r.*
+FROM Reservations r
+JOIN Exemplaires e ON r.id_exemplaire = e.id_exemplaire
+JOIN Bibliotheques b ON e.id_bibliotheque = b.id_bibliotheque
+JOIN Personnels p ON p.id_bibliotheque = b.id_bibliotheque;
+
+CREATE OR REPLACE VIEW Ouvrages_Frequemment_Transferes AS
+SELECT
+    o.id_ouvrage,
+    o.titre,
+    o.auteur,
+    o.annee,
+    t.id_transfert,
+    t.date_demande,
+    t.date_arrivee,
+    EXTRACT(EPOCH FROM (t.date_arrivee::timestamp - t.date_demande::timestamp)) / 86400 AS temps_transfert_jours
+FROM
+    Ouvrages o
+JOIN
+    Exemplaires e ON o.id_ouvrage = e.id_ouvrage
+JOIN
+    Transferts t ON e.id_exemplaire = t.id_exemplaire
+ORDER BY
+    t.date_arrivee DESC;
+
 
 
 -- Insertion des métiers (inchangé)
