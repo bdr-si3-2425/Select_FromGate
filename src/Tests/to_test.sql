@@ -987,18 +987,3 @@ VALUES
   (2, 2, 'Science', 'Conférence sur l espace', '2025-04-10', 100, 30),
   (3, 1, 'Histoire', 'Discussion sur la Révolution', '2025-05-20', 40, 25);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

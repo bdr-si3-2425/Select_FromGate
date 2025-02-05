@@ -79,8 +79,8 @@ SET date_fin = '2025-06-01'
 WHERE id_pret = 1;
 
 -- Test 30: Ajouter la même ligne dans la table Prets après suppression
-INSERT INTO Prets (id_exemplaire, id_abonne, date_debut, date_fin, retard)
-VALUES (1, 1, '2025-01-01', '2025-06-01', 0);
+INSERT INTO Prets (id_exemplaire, id_bibliotheque,id_abonne, date_debut, date_fin, retard)
+VALUES (1, 1, 1, '2025-01-01', '2025-06-01', 0);
 
 -- Test 29: Supprimer une ligne dans la table Prets
 DELETE FROM Prets
@@ -112,7 +112,7 @@ WHERE id_collection = 1;
 
 -- Test 5: Supprimer une ligne dans la table Abonnes
 DELETE FROM Abonnes
-WHERE id_personne = 1;
+WHERE id_personne = 7;
 
 -- Test 8: Supprimer une ligne dans la table Bibliotheques
 DELETE FROM Bibliotheques
