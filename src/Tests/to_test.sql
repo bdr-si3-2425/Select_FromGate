@@ -1,10 +1,6 @@
 Select drop_all_tables();
 
-Select drop_all_roles();
 
-Select drop_all_views();
-
-Select drop_all_triggers();
 
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
@@ -209,6 +205,50 @@ CREATE TABLE IF NOT EXISTS Banissements (
 );
 
 
+Select drop_all_views();
+
+
+
+CREATE VIEW Abonnes_Exemplaires AS
+SELECT e.id_exemplaire, e.id_ouvrage, e.id_bibliotheque
+FROM Exemplaires e
+JOIN Bibliotheques b ON e.id_bibliotheque = b.id_bibliotheque
+JOIN Abonnes a ON a.code_postal = b.code_postal;
+
+CREATE VIEW Vue_Bibliotheques_Bibliothecaires AS
+SELECT DISTINCT b.*
+FROM Bibliotheques b
+JOIN Personnels p ON b.id_bibliotheque = p.id_bibliotheque;
+
+CREATE OR REPLACE VIEW Penalites_Abonnes AS
+SELECT p.*
+FROM Penalites p
+WHERE p.id_personne = (SELECT id_personne FROM Personnes where email = CURRENT_USER);
+
+CREATE OR REPLACE VIEW Vue_Prets_Bibliothecaires AS
+SELECT p.*
+FROM Prets p
+JOIN Exemplaires e ON p.id_exemplaire = e.id_exemplaire
+JOIN Bibliotheques b ON e.id_bibliotheque = b.id_bibliotheque
+JOIN Personnels per ON b.id_bibliotheque = per.id_bibliotheque
+WHERE per.id_personne = (Select id_personne FROM Personnes where email = CURRENT_USER);
+
+CREATE VIEW Vue_Reservations_Bibliothecaires AS
+SELECT r.*
+FROM Reservations r
+JOIN Exemplaires e ON r.id_exemplaire = e.id_exemplaire
+JOIN Bibliotheques b ON e.id_bibliotheque = b.id_bibliotheque
+JOIN Personnels p ON p.id_bibliotheque = b.id_bibliotheque;
+
+Select drop_all_roles();
+
+Select drop_all_triggers();
+
+
+
+
+
+
 -------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 -- Functions :
@@ -219,31 +259,19 @@ CREATE TABLE IF NOT EXISTS Banissements (
 --------------------------------------------------------------------------------
 -- ABONNEMENTS :
 
-CREATE OR REPLACE FUNCTION verif_end_of_subsription_fn()
-RETURNS TRIGGER AS $$
+-- Vérifie la possibilité de résiliation de l'abonnement
+CREATE OR REPLACE FUNCTION _verif_pret_before_subsription_delete_fn(abonnement Abonnements)
+RETURNS VOID AS $$
 BEGIN
-
-	IF EXISTS (
-        SELECT 1
-        FROM Prets
-        WHERE id_abonne = OLD.id_personne
-          AND date_fin > CURRENT_DATE
-    ) THEN
-        RAISE EXCEPTION 'L''abonné(e) a un prêt en cours, il ne peut donc pas résilier son abonnement';
-   END IF;
-	-- Pareil avec les renouvellements
-	IF EXISTS (
-	    SELECT 1
-	    FROM Prets_Renouvellements pr
-	    JOIN Prets p ON pr.id_pret = p.id_pret
-	    WHERE p.id_abonne = NEW.id_abonne
-	    AND NEW.date_debut <= pr.date_fin
-	    AND NEW.date_fin >= pr.date_renouvellement
+	-- Vérifie que l'abonné(e) n'as pas de prêts en cours
+    IF EXISTS (
+		SELECT 1
+		FROM Prets AS pret
+		WHERE abonnement.id_personne = pret.id_abonne
+		AND (pret.date_fin + INTERVAL '1 day' * pret.retard) > CURRENT_DATE
 	) THEN
-    	RAISE EXCEPTION 'L''abonné(e) a déjà un prêt renouvelé dans la période demandée';
+		RAISE EXCEPTION 'L''abonné(e) a un prêt en cours, il ne peut donc pas résilier son abonnement';
 	END IF;
-	
-RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
@@ -253,15 +281,13 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION on_subsription_delete_fn()
 RETURNS TRIGGER AS $$
 BEGIN
-    -- On retire les réservation en cours/futures de l'abonné(e)
+    -- Appel des fonctions de validation en leur passant la ligne OLD
+	PERFORM _verif_pret_before_subsription_delete_fn(OLD)
+
+	-- On retire les réservation en cours/futures de l'abonné(e)
 	DELETE FROM Reservations
 	WHERE id_abonne = OLD.id_personne
 	AND date_expiration >= CURRENT_DATE;
-
-	-- On retire les transferts de l'abonné(e)
-	DELETE FROM Transferts
-	WHERE id_personne = OLD.id_personne
-  	AND date_arrivee >= CURRENT_DATE;
 RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -271,10 +297,9 @@ $$ LANGUAGE plpgsql;
 --------------------------------------------------------------------------------
 -- PRETS :
 
-CREATE OR REPLACE FUNCTION verif_book_borrowed_emprun_fn()
+CREATE OR REPLACE FUNCTION verif_pret_insert_fn()
 RETURNS TRIGGER AS $$
 BEGIN
-
 	-- Vérifier que la date de début existe et corriger si besoin
     IF (NEW.date_debut IS NULL) THEN
         NEW.date_debut = CURRENT_DATE;
@@ -290,60 +315,61 @@ BEGIN
         NEW.retard = 0;
 	END IF;
 
-	-- Vérifier que l'examplaire est dans la bibliotheque de l'abonné(e)
-	IF NOT EXISTS (
-	    SELECT 1
-	    FROM Exemplaires AS e
-	    JOIN Abonnes AS a ON a.id_bibliotheque = e.id_bibliotheque
-	    WHERE e.id_exemplaire = NEW.id_exemplaire
-	    AND a.id_personne = NEW.id_abonne
-	) THEN 
-    	RAISE EXCEPTION 'L''ouvrage est présent dans une autre bibliotheque';
-	END IF;
-
-		
     -- Vérifier si l'exemplaire n'est pas déjà emprunté sur la période demandée
     IF (
     EXISTS (
-        SELECT 1
-        FROM Prets
-        WHERE id_exemplaire = NEW.id_exemplaire
-          AND NEW.date_debut <= date_fin
-          AND NEW.date_fin >= date_debut
-    )
-    OR
-    EXISTS (
-        SELECT 1
-        FROM Prets AS p
-        JOIN (
-            SELECT id_pret, MAX(date_fin) AS last_date_fin
-            FROM Prets_Renouvellements
-            GROUP BY id_pret
-        ) AS pr ON pr.id_pret = p.id_pret
-        WHERE p.id_exemplaire = NEW.id_exemplaire
-          AND NEW.date_debut <= pr.last_date_fin
-          AND NEW.date_fin >= p.date_debut
-    	)
-	) THEN
+            SELECT 1
+            FROM Prets
+            WHERE id_exemplaire = NEW.id_exemplaire
+            AND NEW.date_debut <= date_fin
+            AND NEW.date_fin >= date_debut
+        ) OR EXISTS (
+            SELECT 1
+            FROM Prets AS p
+            JOIN (
+                SELECT id_pret, MAX(date_fin) AS last_date_fin
+                FROM Prets_Renouvellements
+                GROUP BY id_pret
+            ) AS pr ON pr.id_pret = p.id_pret
+            WHERE p.id_exemplaire = NEW.id_exemplaire
+            AND NEW.date_debut <= pr.last_date_fin
+            AND NEW.date_fin >= p.date_debut
+        )
+    ) THEN
     	RAISE EXCEPTION 'L''ouvrage est déjà emprunté sur cette période';
+	END IF;
+
+
+    -- Vérifier si l'exemplaire n'est pas déjà réservé sur la période demandée
+    IF (
+    EXISTS (
+            SELECT 1
+            FROM Reservations AS r
+            WHERE r.id_exemplaire = NEW.id_exemplaire
+            AND NEW.date_debut <= r.date_expiration
+            AND NEW.date_fin >= r.date_reservation
+        )
+    ) THEN
+    	RAISE EXCEPTION 'L''ouvrage est déjà réservé sur cette période';
 	END IF;
 
 
     -- Vérifier si l'abonné(e) n'a pas atteint son maximum de livres empruntés
     IF (
-        (SELECT abnmt.nombre_livres
-         FROM Abonnes AS abe
-         JOIN Abonnements AS abnmt ON abe.id_abonnement = abnmt.id_abonnement
-         WHERE abe.id_personne = NEW.id_abonne
-        ) <=
-        (SELECT COUNT(*)
-         FROM Prets AS p
-         WHERE p.id_abonne = NEW.id_abonne
-         AND p.date_fin >= CURRENT_DATE -- Livres non encore rendus
+        (
+            SELECT abnmt.nombre_livres
+            FROM Abonnes AS abe
+            JOIN Abonnements AS abnmt ON abe.id_abonnement = abnmt.id_abonnement
+            WHERE abe.id_personne = NEW.id_abonne
+        ) <= (
+            SELECT COUNT(*)
+            FROM Prets AS p
+            WHERE p.id_abonne = NEW.id_abonne
+            AND p.date_fin >= CURRENT_DATE -- Livres non encore rendus
         )
     ) THEN
         RAISE EXCEPTION 'L''abonné(e) a déjà atteint le maximum de livres empruntables permis par son abonnement';
-END IF;
+    END IF;
 
     -- Vérifier que l'abonné(e) n'est pas interdit d'emprunt (Banissement temporaire)
     IF EXISTS (
@@ -355,7 +381,7 @@ END IF;
         AND bt.date_fin >= CURRENT_DATE
     ) THEN
         RAISE EXCEPTION 'L''abonné(e) est banni temporairement';
-END IF;
+    END IF;
 
     -- Vérifier que l'abonné(e) n'est pas interdit d'emprunt (Banissement définitif)
     IF EXISTS (
@@ -366,7 +392,7 @@ END IF;
         AND b.date_debut <= CURRENT_DATE
     ) THEN
         RAISE EXCEPTION 'L''abonné(e) est banni définitivement';
-END IF;
+    END IF;
 
 	-- Vérifie que l'abonné(e) n'ait pas d'amende impayée :
 	IF EXISTS (
@@ -374,10 +400,10 @@ END IF;
 	    FROM Penalites p
 	    JOIN Amendes am ON am.id_penalite = p.id_penalite
 	    WHERE p.id_personne = NEW.id_abonne
-	      AND am.id_penalite NOT IN (SELECT id_penalite FROM Amendes_Reglements)
+	    AND am.id_penalite NOT IN (SELECT id_penalite FROM Amendes_Reglements)
 	) THEN
 	    RAISE EXCEPTION 'L''abonné(e) n''a pas encore réglé ses amendes';
-END IF;
+    END IF;
 RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -516,6 +542,144 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+-- ROLES
+
+-- Fonction qui initialise les roles
+CREATE OR REPLACE FUNCTION init_roles()
+RETURNS VOID AS $$
+BEGIN
+    IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'directeur') THEN
+        CREATE ROLE directeur;
+    END IF;
+    IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'bibliothecaire') THEN
+        CREATE ROLE bibliothecaire;
+    END IF;
+    IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'agent_securite') THEN
+        CREATE ROLE agent_securite;
+    END IF;
+    IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'technicien_informatique') THEN
+        CREATE ROLE technicien_informatique;
+    END IF;
+    IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'client') THEN
+        CREATE ROLE client;
+    END IF;
+    IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'abonne') THEN
+        CREATE ROLE abonne;
+    END IF;
+    IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'intervenant') THEN
+        CREATE ROLE intervenant;
+    END IF;
+	IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'personnel') THEN
+        CREATE ROLE personnel;
+    END IF;
+END
+$$ LANGUAGE plpgsql;
+
+
+-- Fonction pour créer un utilisateur à l'ajout d'une personne
+CREATE OR REPLACE FUNCTION add_user()
+RETURNS TRIGGER AS $$
+DECLARE
+    username TEXT;
+BEGIN
+
+    username := NEW.email;
+    EXECUTE format('CREATE USER %I LOGIN PASSWORD %L', username, 'MotDePasseParDefaut');
+    RETURN NEW;
+
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION ajouter_role_client() 
+RETURNS TRIGGER AS $$
+DECLARE
+  utilisateur_email VARCHAR;
+BEGIN
+  -- Récupérer l'email de l'utilisateur depuis la table Personnes en utilisant l'id_personne
+  SELECT p.email
+  INTO utilisateur_email
+  FROM Personnes p
+  WHERE p.id_personne = NEW.id_personne;
+  
+  -- Ajouter le rôle client à l'utilisateur
+  EXECUTE 'GRANT client TO "' || utilisateur_email || '"';
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+
+
+CREATE OR REPLACE FUNCTION ajouter_role_abonne() 
+RETURNS TRIGGER AS $$
+DECLARE
+  utilisateur_email VARCHAR;
+BEGIN
+  -- Récupérer l'email de l'utilisateur depuis la table Personnes en utilisant l'id_personne
+  SELECT p.email
+  INTO utilisateur_email
+  FROM Personnes p
+  WHERE p.id_personne = NEW.id_personne;
+  
+  -- Ajouter le rôle abonne à l'utilisateur
+  EXECUTE 'GRANT abonne TO "' || utilisateur_email || '"';
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION ajouter_role_personnel() 
+RETURNS TRIGGER AS $$
+DECLARE
+  utilisateur_email VARCHAR;
+  utilisateur_metier VARCHAR;
+  role_a_attribuer VARCHAR;
+BEGIN
+  -- Récupérer l'email de l'utilisateur depuis la table Personnes
+  SELECT p.email 
+  INTO utilisateur_email
+  FROM Personnes p
+  WHERE p.id_personne = NEW.id_personne;
+
+  -- Récupérer le métier de l'utilisateur depuis la table Metiers
+  SELECT m.nom_metier
+  INTO utilisateur_metier
+  FROM Metiers m
+  WHERE m.id_metier = NEW.id_metier;
+
+  -- Déterminer le rôle à attribuer en fonction du métier
+  CASE utilisateur_metier
+    WHEN 'Directeur' THEN role_a_attribuer := 'directeur';
+    WHEN 'Bibliothécaire' THEN role_a_attribuer := 'bibliothecaire';
+    WHEN 'Agent de sécurité' THEN role_a_attribuer := 'agent_securite';
+    WHEN 'Technicien informatique' THEN role_a_attribuer := 'technicien_informatique';
+    ELSE role_a_attribuer := 'personnel';  -- Rôle par défaut si le métier n'est pas reconnu
+  END CASE;
+
+  -- Ajouter le rôle à l'utilisateur
+  EXECUTE 'GRANT ' || role_a_attribuer || ' TO "' || utilisateur_email || '"';
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+
+
+CREATE OR REPLACE FUNCTION ajouter_role_intervenant() 
+RETURNS TRIGGER AS $$
+DECLARE
+  utilisateur_email VARCHAR;
+BEGIN
+  -- Récupérer l'email de l'utilisateur depuis la table Personnes en utilisant l'id_personne
+  SELECT p.email
+  INTO utilisateur_email
+  FROM Personnes p
+  WHERE p.id_personne = NEW.id_personne;
+  
+  -- Ajouter le rôle intervenant à l'utilisateur
+  EXECUTE 'GRANT intervenant TO "' || utilisateur_email || '"';
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+
 
 
 
@@ -535,11 +699,6 @@ CREATE TRIGGER verif_end_of_subsription
 	BEFORE DELETE ON Abonnes
 	FOR EACH ROW
 	EXECUTE FUNCTION on_subsription_delete_fn();
-
-CREATE TRIGGER verif_end_of_subsription_other
-	BEFORE DELETE ON Abonnes
-	FOR EACH ROW
-	EXECUTE FUNCTION verif_end_of_subsription_fn();
 
 
 --------------------------------------------------------------------------------
@@ -564,11 +723,82 @@ CREATE TRIGGER verif_reservation_insert
     FOR EACH ROW
     EXECUTE FUNCTION verif_reservation_insert_fn();
 
+--------------------------------------------------------------------------------
+-- ROLES
 
+CREATE TRIGGER trigger_add_user
+    AFTER INSERT ON Personnes
+    FOR EACH ROW
+    EXECUTE FUNCTION add_user();
+
+CREATE TRIGGER trigger_supprimer_user
+    AFTER DELETE ON Personnes
+    FOR EACH ROW
+    EXECUTE FUNCTION supprimer_personne_trigger();
+
+CREATE TRIGGER trigger_modifier_utilisateur
+    AFTER UPDATE ON Personnes
+    FOR EACH ROW
+    EXECUTE FUNCTION update_user();
+
+-- Abonnes :
+CREATE TRIGGER trigger_retirer_role_abonne
+    AFTER DELETE ON Abonnes
+    FOR EACH ROW
+    EXECUTE FUNCTION retirer_role_trigger();
+
+-- Clients :
+CREATE TRIGGER trigger_retirer_role_client
+    AFTER DELETE ON Clients
+    FOR EACH ROW
+    EXECUTE FUNCTION retirer_role_trigger();
+
+-- Intervenants :
+CREATE TRIGGER trigger_retirer_role_intervenant
+    AFTER DELETE ON Intervenants
+    FOR EACH ROW
+    EXECUTE FUNCTION retirer_role_trigger();
+
+-- Personnels :
+CREATE TRIGGER trigger_retirer_role_abonne
+    AFTER DELETE ON Personnels
+    FOR EACH ROW
+    EXECUTE FUNCTION retirer_role_trigger();
+
+----- Triggers pour ajouter un role lors de l'ajout d'un utilisateur dans une table
+-- Ajout du role client à l'utilisateur
+CREATE TRIGGER trigger_ajouter_role_client
+AFTER INSERT ON Clients
+FOR EACH ROW
+EXECUTE FUNCTION ajouter_role_client();
+
+-- Ajout du role abonne à l'utilisateur
+CREATE TRIGGER trigger_ajouter_role_abonne
+AFTER INSERT ON Abonnes
+FOR EACH ROW
+EXECUTE FUNCTION ajouter_role_abonne();
+
+
+-- Ajout du role personnel à l'utilisateur
+CREATE TRIGGER trigger_ajouter_role_personnel
+AFTER INSERT ON Personnels
+FOR EACH ROW
+EXECUTE FUNCTION ajouter_role_personnel();
+
+-- Ajout du role intervenant à l'utilisateur
+CREATE TRIGGER trigger_ajouter_role_intervenant
+AFTER INSERT ON Intervenants
+FOR EACH ROW
+EXECUTE FUNCTION ajouter_role_intervenant();
+
+-- Initialisation des roles
 Select init_roles();
 
+
+-- On supprime les privilèges par défaut pour ne pas faire d'erreurs
 REVOKE ALL PRIVILEGES ON ALL TABLES IN SCHEMA public FROM PUBLIC;
 REVOKE ALL PRIVILEGES ON ALL FUNCTIONS IN SCHEMA public FROM PUBLIC;
+
 
 CREATE VIEW Abonnes_Exemplaires AS
 SELECT e.id_exemplaire, e.id_ouvrage, e.id_bibliotheque
@@ -600,6 +830,7 @@ FROM Reservations r
 JOIN Exemplaires e ON r.id_exemplaire = e.id_exemplaire
 JOIN Bibliotheques b ON e.id_bibliotheque = b.id_bibliotheque
 JOIN Personnels p ON p.id_bibliotheque = b.id_bibliotheque;
+
 
 CREATE OR REPLACE VIEW Ouvrages_Frequemment_Transferes AS
 SELECT
@@ -778,3 +1009,20 @@ VALUES
   (3, 1), -- Exemplaire 4 du livre "Harry Potter à l'école des sorciers" dans la bibliothèque 1
   (4, 1), -- Exemplaire 5 du livre "La peste" dans la bibliothèque 1
   (4, 1); -- Exemplaire 6 du même livre
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
