@@ -19,31 +19,6 @@ BEGIN
     -- Vérifier si l'exemplaire n'est pas déjà emprunté sur la période demandée
     IF (
     EXISTS (
-<<<<<<< HEAD:src/Functions/Pret_function.sql/verif_book_borrowed_emprun.sql
-        SELECT 1
-        FROM Prets
-        WHERE id_exemplaire = NEW.id_exemplaire
-          AND NEW.date_debut <= date_fin
-          AND NEW.date_fin >= date_debut
-    )
-    OR
-    EXISTS (
-        SELECT 1
-        FROM Prets AS p
-        JOIN (
-            SELECT id_pret, MAX(date_fin) AS last_date_fin
-            FROM Prets_Renouvellements
-            GROUP BY id_pret
-        ) AS pr ON pr.id_pret = p.id_pret
-        WHERE p.id_exemplaire = NEW.id_exemplaire
-          AND NEW.date_debut <= pr.last_date_fin
-          AND NEW.date_fin >= p.date_debut
-    	)
-	) THEN
-    	RAISE EXCEPTION 'L''ouvrage est déjà emprunté sur cette période';
-	END IF;
-
-=======
             SELECT 1
             FROM Prets
             WHERE id_exemplaire = NEW.id_exemplaire
@@ -78,7 +53,7 @@ BEGIN
     ) THEN
     	RAISE EXCEPTION 'L''ouvrage est déjà réservé sur cette période';
 	END IF;
->>>>>>> 9ad48cd (Cleaned & tested everything except roles/user & views):src/Functions/Pret_function.sql/verif_pret_insert.sql
+
 
 
     -- Vérifier si l'abonné(e) n'a pas atteint son maximum de livres empruntés
