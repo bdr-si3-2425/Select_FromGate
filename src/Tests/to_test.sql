@@ -125,17 +125,10 @@ CREATE TABLE IF NOT EXISTS Participants (
 -- Table des réservations d'ouvrages
 CREATE TABLE IF NOT EXISTS Reservations (
   id_reservation INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-<<<<<<< HEAD
-  id_exemplaire INTEGER NOT NULL REFERENCES Exemplaires,
-  id_abonne INTEGER NOT NULL REFERENCES Abonnes,
-  date_reservation DATE,
-  date_expiration DATE
-=======
   id_exemplaire INTEGER NOT NULL REFERENCES Exemplaires ON DELETE CASCADE,
   id_abonne INTEGER NOT NULL REFERENCES Abonnes ON DELETE CASCADE,
   date_reservation DATE NOT NULL,
   date_expiration DATE NOT NULL
->>>>>>> a99bb261932d59796e7d2c673b904339fdc3619b
 );
 
 -- Table des prêts d'ouvrages
