@@ -89,3 +89,13 @@ CREATE TRIGGER decrement_number_participant
     BEFORE INSERT ON Participants
     FOR EACH ROW
     EXECUTE FUNCTION decrement_number_participant();
+
+
+--------------------------------------------------------------------------------
+-- TRANSFERTS
+--------------------------------------------------------------------------------
+
+CREATE TRIGGER check_transfert_disponibilite_trigger
+    BEFORE INSERT ON Transferts
+    FOR EACH ROW
+    EXECUTE FUNCTION check_exemplaire_disponibilite();
