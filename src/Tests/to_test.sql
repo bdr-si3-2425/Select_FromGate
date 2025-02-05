@@ -279,14 +279,14 @@ Select drop_all_triggers();
 -- ABONNEMENTS :
 
 -- Vérifie la possibilité de résiliation de l'abonnement
-CREATE OR REPLACE FUNCTION _verif_pret_before_subsription_delete_fn(abonnement Abonnements)
+CREATE OR REPLACE FUNCTION _verif_pret_before_subsription_delete_fn(abonne Abonnes)
 RETURNS VOID AS $$
 BEGIN
 	-- Vérifie que l'abonné(e) n'as pas de prêts en cours
     IF EXISTS (
 		SELECT 1
 		FROM Prets AS pret
-		WHERE abonnement.id_personne = pret.id_abonne
+		WHERE abonne.id_personne = pret.id_abonne
 		AND (pret.date_fin + INTERVAL '1 day' * pret.retard) > CURRENT_DATE
 	) THEN
 		RAISE EXCEPTION 'L''abonné(e) a un prêt en cours, il ne peut donc pas résilier son abonnement';
