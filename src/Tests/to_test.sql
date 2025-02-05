@@ -750,11 +750,6 @@ CREATE TRIGGER trigger_add_user
     FOR EACH ROW
     EXECUTE FUNCTION add_user();
 
-CREATE TRIGGER trigger_supprimer_user
-    AFTER DELETE ON Personnes
-    FOR EACH ROW
-    EXECUTE FUNCTION supprimer_personne_trigger();
-
 CREATE TRIGGER trigger_modifier_utilisateur
     AFTER UPDATE ON Personnes
     FOR EACH ROW

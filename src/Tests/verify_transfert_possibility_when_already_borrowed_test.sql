@@ -12,8 +12,8 @@ INSERT INTO Abonnes (id_personne, adresse, code_postal, rib, id_abonnement)
 VALUES (1, '10 rue de Test', 75012, 'FR123456789', 1);
 
 -- création du premier prêt
-INSERT INTO Prets (id_exemplaire, id_abonne, date_debut, date_fin)
-VALUES (1, 1, '2025-01-01', NULL);
+INSERT INTO Prets (id_exemplaire, id_bibliotheque,id_abonne, date_debut, date_fin)
+VALUES (1, 1, 1, '2025-01-01', NULL);
 
 -- tentative de transfert
 INSERT INTO Transferts (id_exemplaire, id_bibliotheque_depart, id_bibliotheque_arrivee, date_demande, date_arrivee)
