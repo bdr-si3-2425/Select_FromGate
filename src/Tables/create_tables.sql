@@ -120,7 +120,6 @@ CREATE TABLE IF NOT EXISTS Prets (
   id_pret INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   id_exemplaire INTEGER NOT NULL REFERENCES Exemplaires,
   id_abonne INTEGER NOT NULL REFERENCES Abonnes,
-  id_bibliotheque INTEGER NOT NULL REFERENCES Bibliotheques,
   date_debut DATE NOT NULL,
   date_fin DATE NOT NULL,
   retard INTEGER NOT NULL
@@ -146,7 +145,6 @@ CREATE TABLE IF NOT EXISTS Transferts (
   id_exemplaire INTEGER NOT NULL REFERENCES Exemplaires,
   id_bibliotheque_depart INTEGER NOT NULL REFERENCES Bibliotheques,
   id_bibliotheque_arrivee INTEGER NOT NULL REFERENCES Bibliotheques,
-  id_personne INTEGER NOT NULL REFERENCES Personnes,
   date_demande DATE NOT NULL,
   date_arrivee DATE NOT NULL
 );

@@ -37,7 +37,7 @@ CREATE TRIGGER trigger_retirer_role_intervenant
 
 -- Personnels :
 CREATE TRIGGER trigger_retirer_role_abonne
-    AFTER DELETE ON Personnel
+    AFTER DELETE ON Personnels
     FOR EACH ROW
     EXECUTE FUNCTION retirer_role_trigger();
 
@@ -75,3 +75,27 @@ CREATE TRIGGER verif_reservation_insert
     BEFORE INSERT ON Reservations
     FOR EACH ROW
     EXECUTE FUNCTION verif_reservation_insert_fn();
+
+--------------------------------------------------------------------------------
+-- EVENEMENTS
+--------------------------------------------------------------------------------
+
+CREATE TRIGGER verify_maximum_participants_event
+    BEFORE INSERT ON Participants
+    FOR EACH ROW
+    EXECUTE FUNCTION verify_maximum_participants_event();
+
+CREATE TRIGGER decrement_number_participant
+    BEFORE INSERT ON Participants
+    FOR EACH ROW
+    EXECUTE FUNCTION decrement_number_participant();
+
+
+--------------------------------------------------------------------------------
+-- TRANSFERTS
+--------------------------------------------------------------------------------
+
+CREATE TRIGGER check_transfert_disponibilite_trigger
+    BEFORE INSERT ON Transferts
+    FOR EACH ROW
+    EXECUTE FUNCTION check_exemplaire_disponibilite();

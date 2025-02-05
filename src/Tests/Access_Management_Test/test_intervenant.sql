@@ -2,10 +2,10 @@
 SET ROLE intervenant;
 
 -- Vérifier s'il peut voir les événements
-SELECT * FROM Evenements;
-
+SELECT * FROM Evenements; -- Doit fonctionner
+ 
 -- Vérifier qu'il ne peut pas voir les prêts
-SELECT * FROM Prets;
+SELECT * FROM Prets; -- Doit échouer
 
 -- Revenir au rôle normal
 RESET ROLE;
