@@ -6,7 +6,7 @@
 - Driss Meskini
 - Mathias Hellal
 - Patrick Bizot
-- Léo Migny
+- Léo
 
 ### Test du code
 
